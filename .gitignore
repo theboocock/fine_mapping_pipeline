@@ -1,5 +1,6 @@
-paintor_run/*
+paintor_run*
 paintor_pipeline.egg-info/*
 build/*
 dist/*
 test_data/*
+!paintor_pipeline/
