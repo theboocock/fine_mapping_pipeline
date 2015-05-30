@@ -18,7 +18,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 import argparse
 import paintor_pipeline.ucsc
 ## Import datetime to make dated directory
@@ -30,8 +31,9 @@ from paintor_pipeline.expections import error_codes
 
 from paintor_pipeline.snp_list import SnpList
 from paintor_pipeline.onekg_utilities.obtain_vcf import get_vcf_file 
+from paintor_pipeline.onekg_utilities.vcf_filter import extract_population_from_1000_genomes
 from paintor_pipeline.gemini.create import create_gemini_database  
-from paintor_pipeline.gemini.annotation import encode_annotation 
+from paintor_pipeline.gemini.annotation import generate_encode_annotations 
 
 def get_relevant_zscore(chrom, directory):
     """
@@ -83,6 +85,7 @@ def generate_zscore_and_vcf_output(output_directory,
                     if pos in zscore_hash.keys():
                         out_vcf.write(line)
                         out_zscore.write(zscore_hash[pos]+'\n')
+    return (output_vcf, output_zscore)
 
 def prepare_run(args):
     """
@@ -107,23 +110,29 @@ def prepare_run(args):
     build = args.build
     # Create the SNPList
     snp_list = SnpList(args.snp_list, build)
-    # Locus to process 
+    # Locus to process
+    # population_to_extract_vcf
+    population = args.population 
     loci = []
+    gemini_databases = []
     for snp in snp_list:
+        logging.info('Preparing output files for SNP {0}'.format(snp.rsid))
         locus = snp.rsid
         loci.append(locus)
         vcf = get_vcf_file(snp, flanking_region)
+        vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
         z_score_file =  get_relevant_zscore(snp.chrom, z_score_dir)
         pos_list_zscore = create_pos_hash_table(z_score_file) 
-        generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus) 
-        gemini_database = create_gemini_database(vcf)
-        create_gemini_annotations(gemini_database, locus, output_directory)  
+        (output_vcf, output_zscore) = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus)
+        gemini_databases.append(create_gemini_database(vcf=output_vcf))
+    generate_encode_annotations(databases=gemini_databases, output_directory=output_directory) 
 
 def main():
     """
         Creates and runs a fine mapping analysis.
 
     """
+    logging.info('Starting PaintorPipeline')
     parser = argparse.ArgumentParser(description="Processes SNP based data and performs various fine mapping tasks")
     subparsers = parser.add_subparsers(help='Sub-command help')
     # Prepare parser 

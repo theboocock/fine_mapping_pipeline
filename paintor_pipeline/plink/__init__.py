@@ -17,22 +17,5 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-
-import os
-
-from paintor_pipeline.utils.shell import *
-
-__CREATE_GEMINI_DATABASE_TEMPLATE__="""
-    gemini load -v {0} {1}  
-"""
-
-def create_gemini_database(vcf):
-    """
-        Creates a gemini database.
-    """
-    database = os.path.splitext(vcf)[0] + '.db' 
-    command = __CREATE_GEMINI_DATABASE_TEMPLATE__.format(vcf, database) 
-    run_command(command)
 
 

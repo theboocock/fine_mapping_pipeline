@@ -17,22 +17,24 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
+import logging
 import os
 
 from paintor_pipeline.utils.shell import *
 
-__CREATE_GEMINI_DATABASE_TEMPLATE__="""
-    gemini load -v {0} {1}  
-"""
-
-def create_gemini_database(vcf):
+def vcf_to_plink(vcf, output_directory):
     """
-        Creates a gemini database.
+        Uses PLINK to convert a 1000 genomes VCF file to plink format 
     """
-    database = os.path.splitext(vcf)[0] + '.db' 
-    command = __CREATE_GEMINI_DATABASE_TEMPLATE__.format(vcf, database) 
-    run_command(command)
 
+def _remove_plink_files(plink_basename):
+    """
+        Remove the plinkfile after creating the basename file.
 
+    """
+
+def plink_to_matrix(plink_basename, output_directory, remove_plink_files=True):
+    """
+        Converts the plink file to a LD matrix for use downstream in paintor.
+    """

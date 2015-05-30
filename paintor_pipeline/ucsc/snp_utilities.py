@@ -5,6 +5,7 @@ import logging
 import shlex 
 from paintor_pipeline.expections.error_codes import *
 from paintor_pipeline.ucsc.utils import *
+from paintor_pipeline.utils.shell import *
 
 
 logger = logging.getLogger(__name__)
@@ -25,12 +26,7 @@ def get_chrom_pos_from_rsid(rsid, build):
     ('4', '9944052')
     """
     query = __GET_RSID_QUERY__.format(build, rsid)
-    try:
-        command = shlex.split(query)
-        output = subprocess.check_output(command)
-    except subprocess.CalledProcessError:
-        logger.error("UCSC extract chromosome failed\n")
-        sys.exit(UCSC_QUERY_FAILED)
+    output = run_command_return_output(query, error=UCSC_QUERY_FAILED)
     output = output.strip() 
     chrom = output.split('\t')[0]
     chrom = chrom_to_number(chrom) 
