@@ -24,7 +24,7 @@ import shlex
 import logging
 
 from pyrallel import *
-from paintor_pipeline.expections.error_codes import *
+from fine_mapping_pipeline.expections.error_codes import *
 logger = logging.getLogger(__name__)
 
 def run_command_return_output(command, error=GENERIC_PROCESS_FAILURE):

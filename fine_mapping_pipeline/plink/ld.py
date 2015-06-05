@@ -22,8 +22,8 @@ import logging
 import os
 import sys
 
-from paintor_pipeline.expections.error_codes import *
-from paintor_pipeline.utils.shell import *
+from fine_mapping_pipeline.expections.error_codes import *
+from fine_mapping_pipeline.utils.shell import *
 
 __VCF_TO_PLINK_TEMPLATE__="""
     plink --vcf {0} --recode --out {1} 
@@ -50,15 +50,14 @@ def vcf_to_plink(locus, output_directory ,vcf):
         logging.error("Could not move PLINK files {0}".format(e))
         sys.exit(OS_ERROR)
 
-def _remove_plink_files(plink_basename, output_directory, locus):
+def _remove_plink_files(output_directory, locus):
     """
         Remove the plinkfile after creating the basename file.
     """
-    ped = plink_basename + locus + '.ped'
-    map_f = plink_basename + locus  + '.map'
+    ped = os.path.join(output_directory, locus + '.ped')
+    map_f = os.path.join(output_directory, locus  + '.map')
     try:
         os.remove(ped)
-        os.remove(fam)
         os.remove(map_f)
     except OSError:
         logging.warning('Could not remove Plink INPUT files, have they already been removed')
@@ -77,17 +76,17 @@ def plink_to_ld_matrix(locus ,output_directory , remove_plink_files=False):
         logging.error("Could not change directory")
         sys.exit(OS_ERROR)
     run_command(command)
-    os.rename(locus + '.ld',  locus  + '.LD') 
+    os.rename(locus + '.ld', locus  + '.LD')
+    if remove_plink_files:
+        _remove_plink_files(output_directory, locus)
     try:
         os.chdir('../')
     except OSError:
         logging.error("Could not change directory")
         sys.exit(OS_ERROR)
-    if remove_plink_files:
-        _remove_plink_files(plink_basename, output_directory, locus)
     try:
         os.remove(os.path.join(output_directory,locus +'.log'))
-        os.remove(locus + '.nosex')
+        os.remove(os.path.join(output_directory,locus + '.nosex'))
     except OSError:
         logging.warning('Could not remove Plink INPUT files, have they already been removed')
         pass 

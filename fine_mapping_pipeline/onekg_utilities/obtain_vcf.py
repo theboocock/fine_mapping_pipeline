@@ -7,8 +7,8 @@ import sys
 
 import logging 
 logger = logging.getLogger(__name__)
-from paintor_pipeline.expections import *
-from paintor_pipeline.utils.shell import *
+from fine_mapping_pipeline.expections import *
+from fine_mapping_pipeline.utils.shell import *
 
 def get_vcf_file(snp, flanking_region):
     """

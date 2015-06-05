@@ -1,4 +1,4 @@
-from paintor_pipeline.ucsc import snp_utilities 
+from fine_mapping_pipeline.ucsc import snp_utilities 
 from collections import Iterator
 
 class Snp:

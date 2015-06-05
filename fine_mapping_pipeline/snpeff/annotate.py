@@ -17,6 +17,10 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+    Annotation module runs a annotate command on a VCF file to generate
+    a SNPEff annotated VCF.
 
-def population_filter(vcf, population='EUR') 
+    This means that that information is parsed into gemini
+"""
 

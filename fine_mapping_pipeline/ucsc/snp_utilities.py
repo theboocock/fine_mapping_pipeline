@@ -3,9 +3,9 @@
 import subprocess
 import logging
 import shlex 
-from paintor_pipeline.expections.error_codes import *
-from paintor_pipeline.ucsc.utils import *
-from paintor_pipeline.utils.shell import *
+from fine_mapping_pipeline.expections.error_codes import *
+from fine_mapping_pipeline.ucsc.utils import *
+from fine_mapping_pipeline.utils.shell import *
 
 
 logger = logging.getLogger(__name__)

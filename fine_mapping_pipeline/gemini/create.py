@@ -21,7 +21,7 @@
 
 import os
 
-from paintor_pipeline.utils.shell import *
+from fine_mapping_pipeline.utils.shell import *
 
 __CREATE_GEMINI_DATABASE_TEMPLATE__="""
     gemini load -v {0} {1}  
@@ -34,5 +34,6 @@ def create_gemini_database(vcf):
     database = os.path.splitext(vcf)[0] + '.db' 
     command = __CREATE_GEMINI_DATABASE_TEMPLATE__.format(vcf, database) 
     run_command(command)
+    return database
 
 
