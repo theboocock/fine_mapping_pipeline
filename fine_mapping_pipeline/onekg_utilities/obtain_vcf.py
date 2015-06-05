@@ -8,6 +8,7 @@ import sys
 import logging 
 logger = logging.getLogger(__name__)
 from paintor_pipeline.expections import *
+from paintor_pipeline.utils.shell import *
 
 def get_vcf_file(snp, flanking_region):
     """
@@ -20,11 +21,5 @@ def get_vcf_file(snp, flanking_region):
     start = snp.pos - flanking_region
     end = snp.pos + flanking_region
     command = 'tabix -h ' + vcf + ' ' + chrom + ':' + str(start) + '-' + str(end)
-    try:
-       command = shlex.split(command)
-       vcf_file_in_memory = subprocess.check_output(command)
-       os.remove(os.path.basename(vcf) + '.tbi')
-    except subprocess.CalledProcessError:
-        logger.error("Problem obtaining VCF file from 1000 genomes ftp - check you connection\n") 
-        sys.exit(ONEKG_DOWNLOAD_FAILED)
+    vcf_file_in_memory = run_command_return_output(command)
     return vcf_file_in_memory

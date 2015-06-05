@@ -75,13 +75,12 @@ def extract_population_from_1000_genomes(vcf, super_population="EUR"):
             if "#CHROM" in line:
                 samples = line.split('\t')[9:len(line.split('\t'))]
                 sample_indices = _get_samples_indices(samples, super_population)
-                print ([item for i, item in enumerate(line.split('\t')) if i in sample_indices])
                 vcf_temp += '\t'.join([item for i ,item in enumerate(line.split('\t')) if i in sample_indices])  + '\n' 
             else:
-                vcf_temp += line 
+                vcf_temp += line + '\n' 
         else:
             vcf_temp += '\t'.join([item for i ,item in enumerate(line.split('\t')) if i in sample_indices]) + '\n' 
-    return vcf
+    return vcf_temp
 
 if __name__ == "__main__":
     import doctest

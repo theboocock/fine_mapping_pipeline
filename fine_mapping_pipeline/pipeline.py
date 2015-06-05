@@ -29,6 +29,7 @@ from os import listdir
 
 from paintor_pipeline.expections import error_codes
 
+from paintor_pipeline.plink.ld import vcf_to_plink, plink_to_ld_matrix
 from paintor_pipeline.snp_list import SnpList
 from paintor_pipeline.onekg_utilities.obtain_vcf import get_vcf_file 
 from paintor_pipeline.onekg_utilities.vcf_filter import extract_population_from_1000_genomes
@@ -78,12 +79,12 @@ def generate_zscore_and_vcf_output(output_directory,
         with open(output_zscore, 'w') as out_zscore:
             for line in vcf.splitlines():
                 if "#" in line:
-                    out_vcf.write(line)
+                    out_vcf.write(line + '\n')
                 else:
                     pos = int(line.split('\t')[1])
                     t_chrom = line.split('\t')[0]
                     if pos in zscore_hash.keys():
-                        out_vcf.write(line)
+                        out_vcf.write(line + '\n')
                         out_zscore.write(zscore_hash[pos]+'\n')
     return (output_vcf, output_zscore)
 
@@ -101,6 +102,8 @@ def prepare_run(args):
             pass
     else:
         output_directory = args.output_directory
+    if not output_directory.endswith('/'):
+        output_directory += '/'
     z_score_dir = args.z_score_dir
     try:
         flanking_region = int(args.flanking_region)
@@ -113,19 +116,21 @@ def prepare_run(args):
     # Locus to process
     # population_to_extract_vcf
     population = args.population 
-    loci = []
-    gemini_databases = []
-    for snp in snp_list:
-        logging.info('Preparing output files for SNP {0}'.format(snp.rsid))
-        locus = snp.rsid
-        loci.append(locus)
-        vcf = get_vcf_file(snp, flanking_region)
-        vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
-        z_score_file =  get_relevant_zscore(snp.chrom, z_score_dir)
-        pos_list_zscore = create_pos_hash_table(z_score_file) 
-        (output_vcf, output_zscore) = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus)
-        gemini_databases.append(create_gemini_database(vcf=output_vcf))
-    generate_encode_annotations(databases=gemini_databases, output_directory=output_directory) 
+    #loci = []
+    #gemini_databases = []
+    #for snp in snp_list:
+        #logging.info('Preparing output files for SNP {0}'.format(snp.rsid))
+        #locus = snp.rsid
+        #loci.append(locus)
+        ##vcf = get_vcf_file(snp, flanking_region)
+        #vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
+        #z_score_file =  get_relevant_zscore(snp.chrom, z_score_dir)
+        #pos_list_zscore = create_pos_hash_table(z_score_file) 
+   #     (output_vcf, output_zscore) = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus)
+        #gemini_databases.append(create_gemini_database(vcf=output_vcf))
+    vcf_to_plink('rs7188445',output_directory='paintor_run2015-05-30', vcf='paintor_run2015-05-30/rs7188445.vcf')
+    plink_to_ld_matrix('rs7188445', output_directory='paintor_run2015-05-30')
+    #generate_encode_annotations(databases=gemini_databases, output_directory=output_directory) 
 
 def main():
     """
