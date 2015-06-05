@@ -26,7 +26,6 @@ import fine_mapping_pipeline.ucsc
 ## Import datetime to make dated directory
 import time, datetime, os
 
-from os import listdir
 
 from fine_mapping_pipeline.expections.error_codes import *
 
@@ -36,64 +35,10 @@ from fine_mapping_pipeline.onekg_utilities.obtain_vcf import get_vcf_file
 from fine_mapping_pipeline.onekg_utilities.vcf_filter import extract_population_from_1000_genomes
 from fine_mapping_pipeline.gemini.create import create_gemini_database
 from fine_mapping_pipeline.gemini.annotation import generate_and_write_encode_annotations
+from fine_mapping_pipeline.utils.zscores import get_relevant_zscore, create_pos_hash_table, generate_zscore_and_vcf_output
 
-def get_relevant_zscore(chrom, directory):
-    """
-        Scans the directory specified on the command-line by the user and checks for the specified chromosome.
-
-    """
-    zscore_files = [f for f in listdir(directory)]
-    chrom = 'chr' + chrom
-    z_score_file = [f for f in zscore_files if chrom in f][0]
-    return os.path.join(directory, z_score_file)
-
-def create_pos_hash_table(zscore_file):
-    """
-        Create position hash table
-
-        @param pos_file the Z scores file containing the positions from impg
-
-        @return pos_hash a hash table that contains the line from impG
-
-    """
-    pos_hash = {}
-    with open(zscore_file) as p:
-        for i, line in enumerate(p):
-            line = line.strip()
-            if i != 0:
-                pos_hash[int(line.split('\t')[1])] = line.split('\t')[4]
-    return (pos_hash)
-
-def generate_zscore_and_vcf_output(output_directory, 
-                             zscore_hash, 
-                             vcf,
-                             locus):
-    """
-        Extract vcf regions that have overlap with Impg data.
-
-    """
-    # output vcf is a temporary file that will be used downstream of this dataset.
-    output_vcf = os.path.join(output_directory, locus+'.vcf') 
-    output_zscore = os.path.join(output_directory, locus)
-    with open(output_vcf, 'w') as out_vcf:
-        with open(output_zscore, 'w') as out_zscore:
-            for line in vcf.splitlines():
-                if "#" in line:
-                    out_vcf.write(line + '\n')
-                else:
-                    pos = int(line.split('\t')[1])
-                    t_chrom = line.split('\t')[0]
-                    if pos in zscore_hash.keys():
-                        out_vcf.write(line + '\n')
-                        out_zscore.write(zscore_hash[pos]+'\n')
-    return (output_vcf, output_zscore)
-
-def prepare_runs(args):
-    """
-        Parses arguments from the paintor sub-command and processes data for use in Paintor.
-
-    """
-    if args.output_directory is None:
+def _prepare_output_dir(output_directory):
+    if output_directory is None:
         todaystr = 'fine_mapping_run' + datetime.date.today().isoformat()
         output_directory = todaystr
         try:
@@ -101,9 +46,17 @@ def prepare_runs(args):
         except OSError:
             pass
     else:
-        output_directory = args.output_directory
+        output_directory = output_directory
     if not output_directory.endswith('/'):
         output_directory += '/'
+    return output_directory
+
+def prepare_runs(args):
+    """
+        Parses arguments from the paintor sub-command and processes data for use in Paintor.
+
+    """
+    output_directory = _prepare_output_dir(args.output_directory)
     z_score_dir = args.z_score_dir
     try:
         flanking_region = int(args.flanking_region)
@@ -113,6 +66,7 @@ def prepare_runs(args):
     build = args.build
     # Create the SNPList
     snp_list = SnpList(args.snp_list, build)
+    logging.info(snp_list)
     # Locus to process
     # population_to_extract_vcf
     no_flanking = args.flanking_units
@@ -128,9 +82,9 @@ def prepare_runs(args):
         logging.info("Obtaining VCF file from the 1000 genomes project")
         vcf = get_vcf_file(snp, flanking_region)
         vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
-        z_score_file =  get_relevant_zscore(snp.chrom, z_score_dir)
-        pos_list_zscore = create_pos_hash_table(z_score_file) 
-        (output_vcf, output_zscore) = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus)
+        z_score_file = get_relevant_zscore(snp.chrom, z_score_dir)
+        pos_list_zscore = create_pos_hash_table(z_score_file)
+        output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus)
         logging.info("Creating gemini database")
         gemini_databases.append(create_gemini_database(vcf=output_vcf))
         logging.info("Creating LD matrix using plink")
@@ -138,15 +92,22 @@ def prepare_runs(args):
                      vcf=output_vcf)
         plink_to_ld_matrix(locus, output_directory=output_directory)
     logging.info("Generating annotation matrices to be used with Paintor")
-    generate_and_write_encode_annotations(databases=gemini_databases,
-                                          output_directory=output_directory, loci=snp_list)
-    with open(os.path.join(output_directory, 'input.files')) as out_f:
+    logging.info(gemini_databases)
+    generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
+    with open(os.path.join(output_directory, 'input.files'), 'w') as out_f:
         for snp in snp_list:
             out_f.write(snp.rsid +'\n')
 
 def finemap(args):
-    raise NotImplementedError
-
+    output_directory = _prepare_output_dir(args.output_directory)
+    if args.run_paintor:
+        logging.info('Running Paintor analysis')
+        run_paintor(input_directory=args.input_directory, auto_select_annotations=args.auto_select_annotations, output_directory=output_directory)
+    if args.run_caviar:
+        logging.info('Runnnig Caviar analysis')
+    if args.run_bim_bam:
+        logging.info('Running BIM BAM analysis')
+        
 def main():
     """
         Creates and runs a fine mapping analysis.
@@ -170,12 +131,13 @@ def main():
     #Finemap parser
     finemap_parser = subparsers.add_parser('finemap', help='Sub command runs paintor following file preparation')
     finemap_parser.add_argument('-i','--input_directory', dest='input_directory', help="Directory files were prepared in after running the"
-                                "prepare command")
-    finemap_parser.add_argument('-a', '-auto-annotations', help='If using paintor select the annotations.')
+                                "prepare command", required=True)
+    finemap_parser.add_argument('-a', '-auto-annotations', dest='auto_select_annotations',
+                                help='If using paintor select the annotations.')
     finemap_parser.add_argument('-d','--output_directory', dest='output_directory', help="Results output dir")
-    finemap_parser.add_argument('-c','--caviar', action='store_false', help='Run Caviar', default=True)
-    finemap_parser.add_argument('-p','--paintor', action='store_false', help='Run Paintor', default=True)
-    finemap_parser.add_argument('-b','--bim-bam', action='store_false', help='Run BIMBAM', default=True)
+    finemap_parser.add_argument('-c','--caviar',dest='run_caviar', action='store_false', help='Run Caviar', default=True)
+    finemap_parser.add_argument('-p','--paintor',dest='run_paintor' , action='store_false', help='Run Paintor', default=True)
+    finemap_parser.add_argument('-b','--bim-bam', dest='run_bim-bam', action='store_false', help='Run BIMBAM', default=True)
     finemap_parser.set_defaults(func=finemap)
     args = parser.parse_args()
     args.func(args)

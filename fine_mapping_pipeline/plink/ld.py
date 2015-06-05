@@ -25,12 +25,28 @@ import sys
 from fine_mapping_pipeline.expections.error_codes import *
 from fine_mapping_pipeline.utils.shell import *
 
-__VCF_TO_PLINK_TEMPLATE__="""
+__VCF_TO_PLINK_TEMPLATE__ = """
     plink --vcf {0} --recode --out {1} 
 """
-__PLINK_TO_LD_MATRIX__="""
+__PLINK_TO_LD_MATRIX__ = """
     plink --file {0} --matrix --out {1} --r --allow-no-sex
 """
+
+def _add_dimensions_to_file(locus_f):
+    """
+        Function adds the dimensions for the LD file so it can be used in Paintor
+    """
+    ld_lines = []
+    i = 0
+    with open(locus_f) as ld_file:
+        for i, line in enumerate(ld_file):
+            ld_lines.append(line)
+    no_lines = i + 1
+    file_out = locus_f.split('.matrix')[0]
+    with open(file_out, 'w' ) as paintor_ld:
+        paintor_ld.write(no_lines + ' ' + no_lines + '\n')
+        for line in ld_lines:
+            paintor_ld.write(line)
 
 def vcf_to_plink(locus, output_directory ,vcf):
     """
@@ -76,7 +92,8 @@ def plink_to_ld_matrix(locus ,output_directory , remove_plink_files=False):
         logging.error("Could not change directory")
         sys.exit(OS_ERROR)
     run_command(command)
-    os.rename(locus + '.ld', locus  + '.LD')
+    os.rename(locus + '.ld', locus  + '.matrix')
+    _add_dimensions_to_file(locus + '.matrix')
     if remove_plink_files:
         _remove_plink_files(output_directory, locus)
     try:

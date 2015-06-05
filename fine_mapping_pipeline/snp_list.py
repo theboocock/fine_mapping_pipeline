@@ -25,7 +25,7 @@ class Snp:
     def __str__(self):
         return self.chrom+":"+str(self.pos)
 
-class SnpList(Iterator):
+class SnpList(object):
 
     def __init__(self,snp_list, build):
         """
@@ -59,10 +59,6 @@ class SnpList(Iterator):
              output_l.append(str(snp))
         return '\n'.join(output_l)
 
-    def next(self):
-        """
-            Next method for a SNP list.
-        """
-        if not self.snp_list:
-            raise StopIteration
-        return self.snp_list.pop()
+    def __iter__(self):
+        for x in self.snp_list:
+            yield x

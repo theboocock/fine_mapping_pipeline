@@ -29,3 +29,4 @@ fine_mapping_pipeline/ucsc/snp_utilities.py
 fine_mapping_pipeline/ucsc/utils.py
 fine_mapping_pipeline/utils/__init__.py
 fine_mapping_pipeline/utils/shell.py
+fine_mapping_pipeline/utils/zscores.py
