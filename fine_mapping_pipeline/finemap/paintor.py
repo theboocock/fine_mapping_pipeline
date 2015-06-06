@@ -22,17 +22,24 @@ import logging
 import os
 
 __PAINTOR_TEMPLATE__="""
-    PAINTOR -o {0} -d {1} -input {2} -c 3
+    PAINTOR -o {0} -d {1} -input {2} -c 3 -i {3}
 """
 
-def _select_annotations(input_directory,output_directory):
+def _select_annotations(input_directory,output_directory, annotation_header):
+    header = open(annotation_header).readline().strip()
+    logging.info('Generating combinations of {0} annotations'.format(len(header)))
 
 
-def run_paintor(input_directory, auto_select_annotations = False,output_directory=None):
+
+def run_paintor(input_directory, annotation_header, auto_select_annotations = False,output_directory=None):
     """
         Function runs PAINTOR and selections the annotations for using Downstream.
     """    
+    annotations = None 
     if auto_select_annotations:
-        _select_annotations(auto_select_annotations)
-    
+        annotations = _select_annotations(input_directory, output_directory, annotation_header)
+    if annotations is None:
 
+    else:
+    
+    

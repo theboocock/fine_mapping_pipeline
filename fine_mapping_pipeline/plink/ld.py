@@ -42,9 +42,9 @@ def _add_dimensions_to_file(locus_f):
         for i, line in enumerate(ld_file):
             ld_lines.append(line)
     no_lines = i + 1
-    file_out = locus_f.split('.matrix')[0]
+    file_out = locus_f.split('.matrix')[0] + '.LD'
     with open(file_out, 'w' ) as paintor_ld:
-        paintor_ld.write(no_lines + ' ' + no_lines + '\n')
+        paintor_ld.write(str(no_lines) + ' ' + str(no_lines) + '\n')
         for line in ld_lines:
             paintor_ld.write(line)
 

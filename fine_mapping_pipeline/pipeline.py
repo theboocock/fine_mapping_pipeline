@@ -129,16 +129,18 @@ def main():
     prepare_parser.set_defaults(func=prepare_runs)
     
     #Finemap parser
-    finemap_parser = subparsers.add_parser('finemap', help='Sub command runs paintor following file preparation')
-    finemap_parser.add_argument('-i','--input_directory', dest='input_directory', help="Directory files were prepared in after running the"
+    paintor_parser = subparsers.add_parser('finemap', help='Sub command runs \
+                                           paintor following file preparation')
+    paintor_parser.add_argument('-i','--input_directory', dest='input_directory', 
+                                help="Directory files were prepared in after running the"
                                 "prepare command", required=True)
-    finemap_parser.add_argument('-a', '-auto-annotations', dest='auto_select_annotations',
+    paintor_parser.add_argument('-a', '-auto-annotations', dest='auto_select_annotations',
                                 help='If using paintor select the annotations.')
-    finemap_parser.add_argument('-d','--output_directory', dest='output_directory', help="Results output dir")
-    finemap_parser.add_argument('-c','--caviar',dest='run_caviar', action='store_false', help='Run Caviar', default=True)
-    finemap_parser.add_argument('-p','--paintor',dest='run_paintor' , action='store_false', help='Run Paintor', default=True)
-    finemap_parser.add_argument('-b','--bim-bam', dest='run_bim-bam', action='store_false', help='Run BIMBAM', default=True)
-    finemap_parser.set_defaults(func=finemap)
+    paintor_parser.add_argument('-d','--output_directory', dest='output_directory', help="Results output dir")
+    paintor_parser.add_argument('-c','--caviar',dest='run_caviar', action='store_false', help='Run Caviar', default=True)
+    paintor_parser.add_argument('-p','--paintor',dest='run_paintor' , action='store_false', help='Run Paintor', default=True)
+    paintor_parser.add_argument('-b','--bim-bam', dest='run_bim-bam', action='store_false', help='Run BIMBAM', default=True)
+    paintor_parser.set_defaults(func=finemap)
     args = parser.parse_args()
     args.func(args)
 

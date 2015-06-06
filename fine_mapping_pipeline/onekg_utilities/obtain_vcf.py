@@ -10,6 +10,10 @@ logger = logging.getLogger(__name__)
 from fine_mapping_pipeline.expections import *
 from fine_mapping_pipeline.utils.shell import *
 
+def remove_tbi_files():
+    """ 
+        Should probably use this function to remove any temp files that create downstream problems.
+    """
 def get_vcf_file(snp, flanking_region):
     """
         Obtain a SNP and a flanking region

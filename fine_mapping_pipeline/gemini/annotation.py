@@ -168,14 +168,14 @@ def generate_and_write_encode_annotations(loci, databases, output_directory):
     matrix = snp_annotations.get_snp_annotation_matrix()
     i = 0
     j = 0
-    logging.info(loci)
     for locus, snp_cutoff in zip(loci, snp_cutoffs):
         with open(os.path.join(output_directory, locus.rsid + '.annotation'), 'w') as out_annot:
+            out_annot.write(str(snp_cutoff-i)+ ' ' + str(len(header)) + '\n')
             for j in range(i, snp_cutoff):
                 tmp_row = matrix[j]
                 out_annot.write(' '.join([str(o) for o in  tmp_row]) + '\n')
         i = j + 1
-    with open(os.path.join(output_directory, 'annotation.header'),'w') as header_f:
+    with open(os.path.join(output_directory, 'annotation.header'), 'w') as header_f:
         header_f.write(' '.join(header) + '\n')
 
 

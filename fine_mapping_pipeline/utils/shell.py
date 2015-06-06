@@ -27,7 +27,7 @@ from pyrallel import *
 from fine_mapping_pipeline.expections.error_codes import *
 logger = logging.getLogger(__name__)
 
-def run_command_return_output(command, error=GENERIC_PROCESS_FAILURE):
+def run_command_return_output(command,cleanup=None ,error=GENERIC_PROCESS_FAILURE):
     """ 
         Runs one command and returns the stdout to the user.
     """
@@ -37,12 +37,12 @@ def run_command_return_output(command, error=GENERIC_PROCESS_FAILURE):
         command = shlex.split(command)
         output = subprocess.check_output(command, stderr=devnull)
     except subprocess.CalledProcessError:
-        logger.error("UCSC extract chromosome failed\n")
+        logger.error("Command: {0} failed".format(' '.join(command)))
         sys.exit(error)
     return output
 
 
-def run_command(command, error=GENERIC_PROCESS_FAILURE):
+def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE):
     """
         Runs a command and returns the stderr to the user.
     """
@@ -52,7 +52,7 @@ def run_command(command, error=GENERIC_PROCESS_FAILURE):
         command = shlex.split(command)
         subprocess.check_call(command,stderr=devnull, stdout=devnull)
     except subprocess.CalledProcessError:
-        logger.error("UCSC extract chromosome failed\n")
+        logger.error("Command: {0} failed".format(' '.join(command)))
         sys.exit(error)
 
 def run_commands(commands, tool_name="" ,cores=6, stdouts=None):

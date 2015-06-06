@@ -73,6 +73,6 @@ def generate_zscore_and_vcf_output(output_directory,
                         if pos in zscore_hash.keys():
                             out_vcf.write(line + '\n')
                             out_zscore.write(zscore_hash[pos]+'\n')
-                            out_caviar.write(line.split('\t')[0]+':'+str(pos) + ' ' + zscore_hash[pos] +'\n')
+                            out_caviar.write(line.split('\t')[3] +  ' ' + zscore_hash[pos] +'\n')
 
     return output_vcf
