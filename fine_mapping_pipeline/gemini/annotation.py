@@ -169,11 +169,13 @@ def generate_and_write_encode_annotations(loci, databases, output_directory):
     i = 0
     j = 0
     for locus, snp_cutoff in zip(loci, snp_cutoffs):
-        with open(os.path.join(output_directory, locus.rsid + '.annotation'), 'w') as out_annot:
+        with open(os.path.join(output_directory, locus.rsid + '.annotations'), 'w') as out_annot:
             out_annot.write(str(snp_cutoff-i)+ ' ' + str(len(header)) + '\n')
+            #out_annot.write(str(snp_cutoff-i)+ ' ' + "1" + '\n')
             for j in range(i, snp_cutoff):
-                tmp_row = matrix[j]
+                tmp_row = matrix[j][0]
                 out_annot.write(' '.join([str(o) for o in  tmp_row]) + '\n')
+            #    out_annot.write(str(tmp_row) + '\n')
         i = j + 1
     with open(os.path.join(output_directory, 'annotation.header'), 'w') as header_f:
         header_f.write(' '.join(header) + '\n')

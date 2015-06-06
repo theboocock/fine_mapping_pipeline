@@ -1,6 +1,3 @@
-[submodule "caviar"]
-	path = caviar
-	url = git@github.com:fhormoz/caviar.git
 [submodule "PAINTOR_FineMapping"]
 	path = PAINTOR_FineMapping
 	url = git@github.com:gkichaev/PAINTOR_FineMapping.git

@@ -31,6 +31,7 @@ def get_chrom_pos_from_rsid(rsid, build):
     chrom = output.split('\t')[0]
     chrom = chrom_to_number(chrom) 
     position = output.split('\t')[1]
+    logging.info(chrom + ':' +  position)
     return chrom, position    
 
 
