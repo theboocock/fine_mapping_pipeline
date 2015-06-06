@@ -173,7 +173,7 @@ def generate_and_write_encode_annotations(loci, databases, output_directory):
             out_annot.write(str(snp_cutoff-i)+ ' ' + str(len(header)) + '\n')
             #out_annot.write(str(snp_cutoff-i)+ ' ' + "1" + '\n')
             for j in range(i, snp_cutoff):
-                tmp_row = matrix[j][0]
+                tmp_row = matrix[j]
                 out_annot.write(' '.join([str(o) for o in  tmp_row]) + '\n')
             #    out_annot.write(str(tmp_row) + '\n')
         i = j + 1

@@ -38,8 +38,6 @@ def run_paintor(input_directory, annotation_header, auto_select_annotations = Fa
     annotations = None 
     if auto_select_annotations:
         annotations = _select_annotations(input_directory, output_directory, annotation_header)
-    if annotations is None:
 
-    else:
     
     

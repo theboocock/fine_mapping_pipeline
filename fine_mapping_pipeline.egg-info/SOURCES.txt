@@ -11,8 +11,7 @@ fine_mapping_pipeline.egg-info/top_level.txt
 fine_mapping_pipeline/expections/__init__.py
 fine_mapping_pipeline/expections/error_codes.py
 fine_mapping_pipeline/finemap/__init__.py
-fine_mapping_pipeline/finemap/bimbam.py
-fine_mapping_pipeline/finemap/caviar.py
+fine_mapping_pipeline/finemap/caviarbf.py
 fine_mapping_pipeline/finemap/paintor.py
 fine_mapping_pipeline/gemini/__init__.py
 fine_mapping_pipeline/gemini/annotation.py

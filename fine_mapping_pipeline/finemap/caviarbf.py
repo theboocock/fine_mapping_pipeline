@@ -18,7 +18,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-def run_caviar(output_directory, input_directory):
+def run_caviarbf(output_directory, input_directory):
     """
         
     """
+    raise NotImplementedError

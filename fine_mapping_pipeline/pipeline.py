@@ -36,6 +36,8 @@ from fine_mapping_pipeline.onekg_utilities.vcf_filter import extract_population_
 from fine_mapping_pipeline.gemini.create import create_gemini_database
 from fine_mapping_pipeline.gemini.annotation import generate_and_write_encode_annotations
 from fine_mapping_pipeline.utils.zscores import get_relevant_zscore, create_pos_hash_table, generate_zscore_and_vcf_output
+from fine_mapping_pipeline.finemap.paintor import run_paintor
+from fine_mapping_pipeline.finemap.caviarbf import run_caviarbf
 
 def _prepare_output_dir(output_directory):
     if output_directory is None:
@@ -129,18 +131,24 @@ def main():
     prepare_parser.set_defaults(func=prepare_runs)
     
     #Finemap parser
-    paintor_parser = subparsers.add_parser('finemap', help='Sub command runs \
-                                           paintor following file preparation')
+    paintor_parser = subparsers.add_parser('paintor', help='Run and process paintor\
+                                           data following file preparation')
     paintor_parser.add_argument('-i','--input_directory', dest='input_directory', 
                                 help="Directory files were prepared in after running the"
                                 "prepare command", required=True)
     paintor_parser.add_argument('-a', '-auto-annotations', dest='auto_select_annotations',
                                 help='If using paintor select the annotations.')
     paintor_parser.add_argument('-d','--output_directory', dest='output_directory', help="Results output dir")
-    paintor_parser.add_argument('-c','--caviar',dest='run_caviar', action='store_false', help='Run Caviar', default=True)
-    paintor_parser.add_argument('-p','--paintor',dest='run_paintor' , action='store_false', help='Run Paintor', default=True)
-    paintor_parser.add_argument('-b','--bim-bam', dest='run_bim-bam', action='store_false', help='Run BIMBAM', default=True)
-    paintor_parser.set_defaults(func=finemap)
+    paintor_parser.set_defaults(func=run_paintor)
+    
+    caviarbf_parser = subparsers.add_parser('caviarbf', help='Run and process caviarbf\
+                                            output following file preparation')
+    caviarbf_parser.add_argument('-i','--input_directory', dest='input_directory', 
+                                help="Directory files were prepared in after running the"
+                                "prepare command", required=True)
+    caviarbf_parser.add_argument('-d', '--output_directory', dest='output_directory', help="Results output dir")
+    caviarbf_parser.set_defaults(func=run_caviarbf)
+
     args = parser.parse_args()
     args.func(args)
 
