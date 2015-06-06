@@ -58,7 +58,7 @@ def generate_zscore_and_vcf_output(output_directory,
 
     """
     # output vcf is a temporary file that will be used downstream of this dataset.
-    output_vcf = os.path.join(output_directory, locus+'.vcf') 
+    output_vcf = os.path.join(output_directory, locus+'.vcf')
     output_zscore = os.path.join(output_directory, locus)
     caviar_zscore = os.path.join(output_directory, locus + '.Z')
     with open(output_vcf, 'w') as out_vcf:
@@ -69,10 +69,12 @@ def generate_zscore_and_vcf_output(output_directory,
                         out_vcf.write(line + '\n')
                     else:
                         pos = int(line.split('\t')[1])
-                        t_chrom = line.split('\t')[0]
                         if pos in zscore_hash.keys():
                             out_vcf.write(line + '\n')
                             out_zscore.write(zscore_hash[pos]+'\n')
-                            out_caviar.write(line.split('\t')[3] +  ' ' + zscore_hash[pos] +'\n')
+                            rsid = line.split('\t')[2]
+                            if rsid == '.':
+                                rsid = line.split('\t')[0] + ":" + line.split('\t')[1]
+                            out_caviar.write(rsid+  ' ' + zscore_hash[pos] +'\n')
 
     return output_vcf
