@@ -67,6 +67,8 @@ def main():
     caviarbf_parser.add_argument('-o', '--output_directory', dest='output_directory', help="Results output dir")
     caviarbf_parser.add_argument('-c', '--causal_snp_number', dest='causal_snp_number', help='Potential number of causal SNPs',
                                  default=3)
+    caviarbf_parser.add_argument('-p','--prior', dest='prior', help='Caviarbf prior information')
+    caviarbf_parser.add_argument('-s','--sample-size', dest='sample_size', help='Sample size Zscores were calculated from')
     caviarbf_parser.set_defaults(func=run_caviarbf_wrap)
 
     args = parser.parse_args()

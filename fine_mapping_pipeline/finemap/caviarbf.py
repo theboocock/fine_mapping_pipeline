@@ -46,13 +46,13 @@ def run_caviarbf(output_directory, input_directory, sample_size, causal_snp_numb
         for line in in_f:
             logging.info(line)
             inputs.append(line.strip())
-    output_bfs = []  
+    output_bfs = []
     for input_f in inputs:
-        z_score = os.path.join(input_directory,  input_f)
-        ld = os.path.join(input_directory, input_f + '.Z')
+        z_score = os.path.join(input_directory, input_f)
+        linkage_dis = os.path.join(input_directory, input_f + '.Z')
         output_bf = os.path.join(output_directory, input_f +'.bf')
         output_bfs.append(output_bf)
-        command = __CAVIAR_BF_TEMPLATE__.format(z_score, ld, prior, sample_size,
+        command = __CAVIAR_BF_TEMPLATE__.format(z_score, linkage_dis, prior, sample_size,
                                                 causal_snp_number, output_bf)
         logging.debug("Running caviarbf with the command: {0}".format(output_bf))
         run_command(command, error=FAILED_CAVIARBF_RUN)
@@ -71,4 +71,10 @@ def run_caviarbf_wrap(args):
     """
         Wraps the command-line arguments for running CaviarBF
     """
-    _prepare_output_dir
+    input_directory = args.input_directory
+    output_directory = args.output_directory
+    causal_snp_number = args.causal_snp_number
+    prior = args.prior
+    sample_size = args.sample_size
+    run_caviarbf(output_directory, input_directory, sample_size,
+                 prior=prior, causal_snp_number=causal_snp_number)
