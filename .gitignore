@@ -2,5 +2,5 @@ fine_mapping_run*
 paintor_pipeline.egg-info/*
 build/*
 dist/*
-test_data/*
+tests/test_data/*
 !paintor_pipeline/
