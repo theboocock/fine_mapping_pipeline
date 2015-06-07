@@ -39,12 +39,12 @@ def _prepare_output_dir(output_directory):
     if output_directory is None:
         todaystr = 'fine_mapping_run' + datetime.date.today().isoformat()
         output_directory = todaystr
-        try:
-            os.mkdir(todaystr)
-        except OSError:
-            pass
     else:
         output_directory = output_directory
+    try:
+        os.mkdir(output_directory)
+    except OSError:
+        pass
     if not output_directory.endswith('/'):
         output_directory += '/'
     return output_directory

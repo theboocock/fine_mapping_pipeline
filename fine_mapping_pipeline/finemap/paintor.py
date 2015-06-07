@@ -85,13 +85,13 @@ def _select_annotations(input_directory, annotation_header,
         logging.debug(temp_likelhood)
         lrt = _do_lrt(null_likelihood, temp_likelhood)
         logging.debug(lrt)
-        if (lrt < p_value_threshold):
+        if  lrt < p_value_threshold:
             best_annotations.append(i)
-            logging.debug("DETECTED: Significant annotation{0}: pvalue = {1}".format(header_line[i],lrt))
+            logging.debug("DETECTED: Significant annotation{0}: pvalue = {1}".format(header_line[i], lrt))
     return best_annotations
 
 
-def run_paintor(input_directory, annotation_header, output_directory=None,
+def run_paintor(input_directory, annotation_header, output_directory,
                 auto_select_annotations=False, causal_snp_number=3):
     """
         Function runs PAINTOR and selections the annotations for using Downstream.
@@ -103,8 +103,10 @@ def run_paintor(input_directory, annotation_header, output_directory=None,
         header_line = header.readline().strip().split()
         best_annotations = range(len(header_line))
     command = __PAINTOR_TEMPLATE__.format(input_directory, output_directory,
-                                          os.path.join(input_directory,'input.files'),
+                                          os.path.join(input_directory, 'input.files'),
                                           causal_snp_number)
     if len(best_annotations) > 0:
         command += '-i '+ ','.join([str(o) for o in best_annotations])
     run_command(command)
+    logging.info("Finished running Paintor")
+

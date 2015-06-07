@@ -23,6 +23,8 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 import argparse
 from fine_mapping_pipeline.prepare_input.prepare_runs import prepare_runs
+from fine_mapping_pipeline.finemap.caviarbf import run_caviarbf 
+from fine_mapping_pipeline.finemap.paintor import run_paintor
 
 def main():
     """
@@ -52,7 +54,7 @@ def main():
                                 "prepare command", required=True)
     paintor_parser.add_argument('-a', '-auto-annotations', dest='auto_select_annotations',
                                 help='If using paintor select the annotations.')
-    paintor_parser.add_argument('-d','--output_directory', dest='output_directory', help="Results output dir")
+    paintor_parser.add_argument('-o','--output_directory', dest='output_directory', help="Results output dir")
     paintor_parser.set_defaults(func=run_paintor)
     
     caviarbf_parser = subparsers.add_parser('caviarbf', help='Run and process caviarbf\
@@ -60,7 +62,7 @@ def main():
     caviarbf_parser.add_argument('-i','--input_directory', dest='input_directory', 
                                 help="Directory files were prepared in after running the"
                                 "prepare command", required=True)
-    caviarbf_parser.add_argument('-d', '--output_directory', dest='output_directory', help="Results output dir")
+    caviarbf_parser.add_argument('-o', '--output_directory', dest='output_directory', help="Results output dir")
     caviarbf_parser.set_defaults(func=run_caviarbf)
 
     args = parser.parse_args()
