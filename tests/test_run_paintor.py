@@ -26,5 +26,4 @@ def test_get_likelihood(tmpdir):
     annot1 = _get_likelihood(input_directory, 1, 'TESTANNOTATION1', 3)
     assert annot1 == -279.196775
     annot2 = _get_likelihood(input_directory, 0, 'TESTANNOTATION2', 3)
-    logging.info(annot2)
     assert annot2 == -284.941121

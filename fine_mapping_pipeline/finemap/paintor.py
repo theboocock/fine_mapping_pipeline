@@ -86,10 +86,8 @@ def _select_annotations(input_directory, annotation_header,
         lrt = _do_lrt(null_likelihood, temp_likelhood)
         logging.debug(lrt)
         if (lrt < p_value_threshold):
-        #TODO if significant add that annotation
             best_annotations.append(i)
             logging.debug("DETECTED: Significant annotation{0}: pvalue = {1}".format(header_line[i],lrt))
-
     return best_annotations
 
 
