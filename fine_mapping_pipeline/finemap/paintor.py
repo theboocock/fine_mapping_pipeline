@@ -110,3 +110,22 @@ def run_paintor(input_directory, annotation_header, output_directory,
     run_command(command)
     logging.info("Finished running Paintor")
 
+def run_paintor_wrap(args):
+    """
+        Wraps the run paintor function so that it can be used from the command line
+    """
+
+    auto_select_annotations = args.auto_select_annotations
+    input_directory = args.input_directory
+    output_directory = args.output_directory
+    causal_snp_number = args.causal_snp_number
+    try:
+        os.mkdir(output_directory)
+    except OSError:
+        pass
+    try:
+        annotation_header = open(os.path.join(input_directory, 'annotation.header')).readline().strip().split()
+    except:
+        logging.error("Could not read in annotation header file was there a problem with the preparation script")
+        sys.exit(OS_ERROR)
+    run_paintor(input_directory, annotation_header, output_directory, auto_select_annotations, causal_snp_number) 
