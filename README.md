@@ -1,5 +1,7 @@
 # Fine mapping pipeline.
 
+[![Build Status](https://travis-ci.org/smilefreak/fine_mapping_pipeline.svg?branch=master)](https://travis-ci.org/smilefreak/fine_mapping_pipeline)
+
 Prepares summary statistics Z Score Files from IMPG and runs a finemapping analysis
 using Paintor, Caviar, and BIMBAM (Caviarbf) 
 
