@@ -4,3 +4,4 @@ build/*
 dist/*
 tests/test_data/*
 !paintor_pipeline/
+.tox/*
