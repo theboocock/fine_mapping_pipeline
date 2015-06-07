@@ -70,7 +70,7 @@ def main():
     caviarbf_parser.add_argument('-p', '--prior', dest='prior', help='Caviarbf prior information',
                                  default=0.1281429)
     caviarbf_parser.add_argument('-s', '--sample-size', dest='sample_size', 
-                                 help='Sample size Zscores were calculated from', require=True)
+                                 help='Sample size Zscores were calculated from', required=True)
     caviarbf_parser.set_defaults(func=run_caviarbf_wrap)
 
     args = parser.parse_args()
