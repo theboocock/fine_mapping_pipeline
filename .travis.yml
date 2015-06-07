@@ -12,4 +12,4 @@ before_install:
     - sudo apt install -y python-numpy python-scipy
     - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
     - git submodule update --init --recursive
-    - ./install_paintor_sh
+    - ./install_paintor.sh
