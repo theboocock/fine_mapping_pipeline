@@ -22,7 +22,7 @@ __CAVIAR_BF_TEMPLATE__ = """
     caviarbf -z {0} -r {1} -t 0 -a {2} -n {3} -c {4} -o {5}
 """
 __MODEL_SEARCH_TEMPLATE__ = """
-    model_search -p 0 -m {0} -i {1] -o {2}
+    model_search -p 0 -m {0} -i {1} -o {2}
 """
 
 import os
@@ -45,11 +45,12 @@ def run_caviarbf(output_directory, input_directory, sample_size, causal_snp_numb
     with open(input_files) as in_f:
         for line in in_f:
             logging.info(line)
-            inputs.append(line.strip())
+            inputs.append(line.strip() + '.Z')
     output_bfs = []
     for input_f in inputs:
         z_score = os.path.join(input_directory, input_f)
-        linkage_dis = os.path.join(input_directory, input_f + '.Z')
+        # This will not work if the loci have names containing matches on *.Z
+        linkage_dis = os.path.join(input_directory, input_f.split('.Z')[0]+ '.matrix')
         output_bf = os.path.join(output_directory, input_f +'.bf')
         output_bfs.append(output_bf)
         command = __CAVIAR_BF_TEMPLATE__.format(z_score, linkage_dis, prior, sample_size,
@@ -57,13 +58,14 @@ def run_caviarbf(output_directory, input_directory, sample_size, causal_snp_numb
         logging.debug("Running caviarbf with the command: {0}".format(output_bf))
         run_command(command, error=FAILED_CAVIARBF_RUN)
     logging.info("Running model_search on all bayes factor files")
-    for input_f, output_bf in zip(input_files, output_bfs):
+    for input_f, output_bf in zip(inputs, output_bfs):
         no_snps = 0
-        with open(os.path.join(output_directory, input_f)) as in_f:
+        with open(os.path.join(input_directory, input_f)) as in_f:
             for no_snps, line in enumerate(in_f):
                 pass
+        no_snps+=1
         output_basename = os.path.join(output_directory, input_f + '_caviar_run')
-        command = __MODEL_SEARCH_TEMPLATE__.format(no_snps, input_f, output_basename)
+        command = __MODEL_SEARCH_TEMPLATE__.format(no_snps, output_bf ,output_basename)
         run_command(command, error=FAILED_CAVIARBF_RUN)
     logging.info("Caviar BF Run completed successfully")
 
