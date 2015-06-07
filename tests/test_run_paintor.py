@@ -1,4 +1,3 @@
-import pytest
 
 from fine_mapping_pipeline.finemap.paintor import run_paintor, _select_annotations, _do_lrt, _get_likelihood 
 import logging 
@@ -23,7 +22,7 @@ def test_do_lrf():
 
 def test_get_likelihood(tmpdir):
     input_directory = 'tests/paintor_data/'
-    annot1 = _get_likelihood(input_directory, 1, 'TESTANNOTATION1', 3)
+    annot1 = _get_likelihood(input_directory, 1, 'TESTANNOTATION1', 3, 0)
     assert annot1 == -279.196775
-    annot2 = _get_likelihood(input_directory, 0, 'TESTANNOTATION2', 3)
+    annot2 = _get_likelihood(input_directory, 0, 'TESTANNOTATION2', 3, 0)
     assert annot2 == -284.941121

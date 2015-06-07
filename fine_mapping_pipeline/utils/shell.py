@@ -42,7 +42,7 @@ def run_command_return_output(command,cleanup=None ,error=GENERIC_PROCESS_FAILUR
     return output
 
 
-def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE):
+def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE,exit_on_failure=True):
     """
         Runs a command and returns the stderr to the user.
     """
@@ -53,7 +53,9 @@ def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE):
         subprocess.check_call(command,stderr=devnull, stdout=devnull)
     except subprocess.CalledProcessError:
         logger.error("Command: {0} failed".format(' '.join(command)))
-        sys.exit(error)
+        if exit_on_failure:
+            sys.exit(error)
+        logger.warning("Did not exit because of a user request") 
 
 def run_commands(commands, tool_name="" ,cores=6, stdouts=None):
     """

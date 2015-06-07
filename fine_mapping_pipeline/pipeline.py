@@ -20,7 +20,7 @@
 
 import sys
 import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 import argparse
 from fine_mapping_pipeline.prepare_input.prepare_runs import prepare_runs
 from fine_mapping_pipeline.finemap.caviarbf import run_caviarbf_wrap 
@@ -55,15 +55,19 @@ def main():
     paintor_parser.add_argument('-a', '-auto-annotations', dest='auto_select_annotations',action='store_true', 
                                 help='If using paintor select the annotations.', required=True)
     paintor_parser.add_argument('-o','--output_directory', dest='output_directory', help="Results output dir")
+    paintor_parser.add_argument('-c','--causal_snp_number', dest='causal_snp_number', help="Potiential number of casual SNPs",
+                                default=3)
     paintor_parser.set_defaults(func=run_paintor_wrap)
     
     caviarbf_parser = subparsers.add_parser('caviarbf', help='Run and process caviarbf\
                                             output following file preparation')
     caviarbf_parser.add_argument('-i','--input_directory', dest='input_directory', 
-                                help="Directory files were prepared in after running the"
-                                "prepare command", required=True)
+                                help="Directory files were prepared in after running the\
+                                prepare command", required=True)
     caviarbf_parser.add_argument('-o', '--output_directory', dest='output_directory', help="Results output dir")
-    caviarbf_parser.set_defaults(func=run_caviarbf)
+    caviarbf_parser.add_argument('-c', '--causal_snp_number', dest='causal_snp_number', help='Potential number of causal SNPs',
+                                 default=3)
+    caviarbf_parser.set_defaults(func=run_caviarbf_wrap)
 
     args = parser.parse_args()
     args.func(args)

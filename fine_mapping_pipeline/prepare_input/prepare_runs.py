@@ -19,6 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import logging
 
+import fnmatch
 import fine_mapping_pipeline.ucsc
 ## Import datetime to make dated directory
 import time, datetime, os
@@ -95,3 +96,12 @@ def prepare_runs(args):
     with open(os.path.join(output_directory, 'input.files'), 'w') as out_f:
         for snp in snp_list:
             out_f.write(snp.rsid +'\n')
+    # Remove .tbi files
+    for file in os.listdir('.'):
+        if fnmatch.fnmatch(file, '*.tbi'):
+            try:
+                os.remove(file)
+            except OSError:
+                logging.warning("Could not remove a .tbi file from the 1000 genomes tabix run")
+    logging.info("Finemapping file preparation complete")
+

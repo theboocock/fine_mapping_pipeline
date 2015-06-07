@@ -41,7 +41,7 @@ def _do_lrt(null_lrt, annot_lrt):
     test_result = 1 - chi2.cdf(test, 1)
     return test_result
 
-def _get_likelihood(input_directory, i, annotation, causal_snp_number):
+def _get_likelihood(input_directory, i, annotation, causal_snp_number, null_likelihood):
     """
         Use the likelhood ratio test to determine the sigfinance of an individual annotation for PAINTOR. 
     """
@@ -55,15 +55,19 @@ def _get_likelihood(input_directory, i, annotation, causal_snp_number):
                                           os.path.join(input_directory, 'input.files'),
                                           causal_snp_number)
     if i != -1:
-        command += '-i ' + str(i) 
-    run_command(command, error=FAILED_PAINTOR_RUN)
+        command += '-i ' + str(i)
+    run_command(command, error=FAILED_PAINTOR_RUN, exit_on_failure=False)
     likelihood = 0.0
-    with open(os.path.join(output_directory, 'Likelihood.txt')) as likeli_file:
-        try:
-            likelihood = float(likeli_file.readline())
-        except ValueError:
-            logging.error("Could not convert PAINTOR likelihood output to a float")
-            sys.exit(FAILED_PAINTOR_RUN)
+    try:
+        with open(os.path.join(output_directory, 'Likelihood.txt')) as likeli_file:
+            try:
+                likelihood = float(likeli_file.readline())
+            except ValueError:
+                logging.error("Could not convert PAINTOR likelihood output to a float")
+                sys.exit(FAILED_PAINTOR_RUN)
+    except IOError:
+        likelihood = null_likelihood
+        logging.warning("No likelihood was produced for this annotation, paintor run must have failed")
     try:
         rmtree(output_directory)
     except OSError:
@@ -77,11 +81,11 @@ def _select_annotations(input_directory, annotation_header,
     header_line = header.readline().strip().split()
     best_annotations = []
     logging.info("Selecting annotations to use with the LRT")
-    null_likelihood = _get_likelihood(input_directory, -1, "", causal_snp_number)
+    null_likelihood = _get_likelihood(input_directory, -1, "", causal_snp_number,0)
     logging.debug("Null model likelihood: {0}".format(null_likelihood))
     for i in range(len(header_line)):
         temp_likelhood = _get_likelihood(input_directory, i,
-                                       header_line[i], causal_snp_number)
+                                       header_line[i], causal_snp_number, null_likelihood)
         logging.debug(temp_likelhood)
         lrt = _do_lrt(null_likelihood, temp_likelhood)
         logging.debug(lrt)
@@ -123,9 +127,5 @@ def run_paintor_wrap(args):
         os.mkdir(output_directory)
     except OSError:
         pass
-    try:
-        annotation_header = open(os.path.join(input_directory, 'annotation.header')).readline().strip().split()
-    except:
-        logging.error("Could not read in annotation header file was there a problem with the preparation script")
-        sys.exit(OS_ERROR)
-    run_paintor(input_directory, annotation_header, output_directory, auto_select_annotations, causal_snp_number) 
+    annotation_header = os.path.join(input_directory, 'annotation.header')
+    run_paintor(input_directory, annotation_header, output_directory, auto_select_annotations, causal_snp_number)
