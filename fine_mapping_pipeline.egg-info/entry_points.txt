@@ -1,3 +1,0 @@
-[console_scripts]
-fine_mapping_pipeline = fine_mapping_pipeline.pipeline:main
-

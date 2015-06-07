@@ -22,8 +22,7 @@ import sys
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 import argparse
-    
-from fine_mapping_pipeline.prepare_input.prepare_run import prepare_runs
+from fine_mapping_pipeline.prepare_input.prepare_runs import prepare_runs
 
 def main():
     """

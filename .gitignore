@@ -1,7 +1,6 @@
 fine_mapping_run*
-paintor_pipeline.egg-info/*
+fine_mapping_pipeline.egg-info/*
 build/*
 dist/*
 tests/test_data/*
-!paintor_pipeline/
 .tox/*
