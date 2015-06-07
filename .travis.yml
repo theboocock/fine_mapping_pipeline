@@ -1,12 +1,6 @@
 language: python
 env:
-    - TOXENV=py26
     - TOXENV=py27
-    - TOXENV=py32
-    - TOXENV=py33
-    - TOXENV=py34
-    - TOXENV=pypy
-    - TOXENV=pypy3
 install:
     - pip install tox
 script:
@@ -15,6 +9,7 @@ git:
     submodules: false
 # Use sed to replace the SSH URL with the public URL, then initialize submodules
 before_install:
+    - sudo apt install -y python-numpy python-scipy
     - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
     - git submodule update --init --recursive
     - ./install_paintor_sh
