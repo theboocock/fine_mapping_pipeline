@@ -64,9 +64,11 @@ def _get_samples_indices(samples, super_population):
     return indices
          
 
-def extract_population_from_1000_genomes(vcf, super_population="EUR"):
+def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_only=True):
     """
         Extract a population from a VCF file.
+
+        Function also removes any tri-allelic SNPs
     """
     vcf_temp = ''
     logging.info("Extracting {0} population from VCF".format(super_population))
@@ -79,7 +81,12 @@ def extract_population_from_1000_genomes(vcf, super_population="EUR"):
             else:
                 vcf_temp += line + '\n' 
         else:
-            vcf_temp += '\t'.join([item for i ,item in enumerate(line.split('\t')) if i in sample_indices]) + '\n' 
+            if biallelic_only:
+                alt = line.split('\t')[4]
+                if alt in ['A', 'G', 'C', 'T']:
+                    vcf_temp += '\t'.join([item for i ,item in enumerate(line.split('\t')) if i in sample_indices]) + '\n'
+            else:
+                vcf_temp += '\t'.join([item for i ,item in enumerate(line.split('\t')) if i in sample_indices]) + '\n'
     return vcf_temp
 
 if __name__ == "__main__":

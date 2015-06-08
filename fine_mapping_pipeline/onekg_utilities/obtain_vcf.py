@@ -18,12 +18,11 @@ def get_vcf_file(snp, flanking_region):
     """
         Obtain a SNP and a flanking region
     """
-    
     vcf = __1000_genomes_template__.format(snp.chrom)
     chrom = snp.chrom
-    pos = snp.pos 
-    start = snp.pos - flanking_region
-    end = snp.pos + flanking_region
+    pos = snp.pos
+    start = pos - flanking_region
+    end = pos + flanking_region
     command = 'tabix -h ' + vcf + ' ' + chrom + ':' + str(start) + '-' + str(end)
     vcf_file_in_memory = run_command_return_output(command)
     return vcf_file_in_memory
