@@ -5,3 +5,4 @@ dist/*
 tests/test_data/*
 .tox/*
 big_test/*
+*tbi
