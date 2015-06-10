@@ -43,7 +43,7 @@ def main():
     prepare_parser.add_argument('-b', '--build', dest='build', help='Genome build',default='hg19')
     prepare_parser.add_argument('-o', '--output', dest='output_directory', help='output directory empty or non-existent directory for dumping files to be used in a paintor run')
     prepare_parser.add_argument('-p', '--population', dest='population', help='1kg population to calculate LD from', default='EUR')
-    prepare_parser.add_argument('-m', '--maf', dest='maf', help='MAF filtering for 1000 genomes VCF file', default=0.01)
+    prepare_parser.add_argument('-m', '--min-maf', dest='maf', help='Min MAF filtering for 1000 genomes VCF file', default=0.02)
     prepare_parser.set_defaults(func=prepare_runs)
     
     #Finemap parser

@@ -64,7 +64,7 @@ def _get_samples_indices(samples, super_population):
     return indices
          
 
-def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_only=True):
+def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_only=True, min_maf=0.02):
     """
         Extract a population from a VCF file.
 
@@ -91,12 +91,23 @@ def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_
             if vcf_temp_l is not None:
                 num_aa = len([item for item in vcf_temp_l[9:] if item == '0|0'])
                 num_ab = len([item for item in vcf_temp_l[9:] if item == '0|1'])
+                num_ab2 = len([item for item in vcf_temp_l[9:] if item == '1|0'])
+                num_ab += num_ab2
                 num_bb = len([item for item in vcf_temp_l[9:] if item == '1|1'])
                 if num_aa == 0 and num_ab == 0:
                     continue
                 elif num_ab == 0 and num_bb == 0:
                     continue
-                vcf_temp += '\t'.join(vcf_temp_l) + '\n'
+                else:
+                    numa = num_aa + num_ab 
+                    numb = num_ab + num_bb 
+                    total_alleles = num_aa + num_ab + num_bb
+                    if numa > numb:
+                        maf = numa/float(total_alleles)
+                    else:
+                        maf = numb/float(total_alleles)
+                    if maf > min_maf:
+                        vcf_temp += '\t'.join(vcf_temp_l) + '\n'
 
     return vcf_temp
 

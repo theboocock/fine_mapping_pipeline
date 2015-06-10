@@ -46,7 +46,7 @@ def create_pos_hash_table(zscore_file):
         for i, line in enumerate(p):
             line = line.strip()
             if i != 0:
-                pos_hash[int(line.split('\t')[1])] = line.split('\t')[4]
+                pos_hash[int(line.split()[1])] = line.split()[4]
     return (pos_hash)
 
 def generate_zscore_and_vcf_output(output_directory, 

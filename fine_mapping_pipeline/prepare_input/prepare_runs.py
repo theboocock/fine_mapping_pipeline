@@ -22,7 +22,7 @@ import logging
 import fnmatch
 import fine_mapping_pipeline.ucsc
 ## Import datetime to make dated directory
-import time, datetime, os
+import time, datetime, os, sys
 
 from fine_mapping_pipeline.expections.error_codes import *
 
@@ -64,6 +64,11 @@ def prepare_runs(args):
         sys.exit(COMMAND_LINE_ERROR)
     build = args.build
     # Create the SNPList
+    try:
+        min_maf = float(args.maf)
+    except:
+        logging.error("Min Maf -m or --min-maf needs to be an integer")
+        sys.exit(COMMAND_LINE_ERROR)
     snp_list = SnpList(args.snp_list, build)
     logging.info(snp_list)
     # Locus to process

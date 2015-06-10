@@ -91,7 +91,7 @@ def _select_annotations(input_directory, annotation_header,
         logging.debug(lrt)
         if  lrt < p_value_threshold:
             best_annotations.append(i)
-            logging.debug("DETECTED: Significant annotation{0}: pvalue = {1}".format(header_line[i], lrt))
+            logging.info("DETECTED: Significant annotation {0}: pvalue = {1}".format(header_line[i], lrt))
     return best_annotations
 
 
@@ -112,6 +112,8 @@ def run_paintor(input_directory, annotation_header, output_directory,
     if len(best_annotations) > 0:
         command += '-i '+ ','.join([str(o) for o in best_annotations])
     run_command(command)
+    logging.info("Header Annotation")
+    logging.info([str(o) for i, o in enumerate(header_line) if i in best_annotations])
     logging.info("Finished running Paintor")
 
 def run_paintor_wrap(args):
