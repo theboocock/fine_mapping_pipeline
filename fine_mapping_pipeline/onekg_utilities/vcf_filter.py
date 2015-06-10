@@ -81,12 +81,23 @@ def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_
             else:
                 vcf_temp += line + '\n' 
         else:
+            vcf_temp_l = None
             if biallelic_only:
                 alt = line.split('\t')[4]
                 if alt in ['A', 'G', 'C', 'T']:
-                    vcf_temp += '\t'.join([item for i ,item in enumerate(line.split('\t')) if i in sample_indices]) + '\n'
+                    vcf_temp_l = [item for i, item in enumerate(line.split('\t')) if i in sample_indices]
             else:
-                vcf_temp += '\t'.join([item for i ,item in enumerate(line.split('\t')) if i in sample_indices]) + '\n'
+                vcf_temp_l = [item for i, item in enumerate(line.split('\t')) if i in sample_indices]
+            if vcf_temp_l is not None:
+                num_aa = len([item for item in vcf_temp_l[9:] if item == '0|0'])
+                num_ab = len([item for item in vcf_temp_l[9:] if item == '0|1'])
+                num_bb = len([item for item in vcf_temp_l[9:] if item == '1|1'])
+                if num_aa == 0 and num_ab == 0:
+                    continue
+                elif num_ab == 0 and num_bb == 0:
+                    continue
+                vcf_temp += '\t'.join(vcf_temp_l) + '\n'
+
     return vcf_temp
 
 if __name__ == "__main__":
