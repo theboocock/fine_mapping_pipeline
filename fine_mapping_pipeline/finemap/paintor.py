@@ -101,6 +101,23 @@ def run_paintor(input_directory, annotation_header, output_directory,
     """
         Function runs PAINTOR and selections the annotations for using Downstream.
     """
+    # TODO first thing is to test to see which regions fail using just a -c 1
+    logging.info("Running Paintor")
+    try:
+        temp_output_directory = tempfile.mkdtemp() 
+    except OSError:
+        logging.error('Could not create a temporary directory for testing for PAINTOR failure')
+        sys.exit(OS_ERROR)
+    with open(os.path.join(input_directory, 'input.files')) as f:
+        for line in f:
+            temp_file = tempfile.NamedTemporaryFile(delete=False)
+            temp_file.write(line.strip() + '\n')
+            temp_file.close()
+            logging.info("Testing to see if loci {0} runs without NLopt failure".format(line.strip())) 
+            command =__PAINTOR_TEMPLATE__.format(input_directory, temp_output_directory,
+                                                 temp_file.name, 1)
+            run_command(command, exit_on_failure=False)
+
     header = open(annotation_header)
     header_line = header.readline().strip().split()
     if auto_select_annotations:
