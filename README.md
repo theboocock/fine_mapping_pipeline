@@ -4,13 +4,20 @@
 Prepares summary statistics Z Score Files from IMPG and runs a finemapping analysis
 using Paintor and Caviarbf.
 
+## Citations
+
+If you use this tool please ensure you cite the primary papers for the methods, these are listed below. 
 
 Paintor. 
-[https://github.com/gkichaev/PAINTOR_FineMapping/] 
+
+https://github.com/gkichaev/PAINTOR_FineMapping/
+ 
 Kichaev, Gleb, et al. "Integrating functional data to prioritize causal variants in statistical fine-mapping studies." (2014): e1004722.
 
 Caviarbf.
-[https://bitbucket.org/Wenan/caviarbf]
+
+https://bitbucket.org/Wenan/caviarbf
+
 Chen, Wenan, et al. "Fine Mapping Causal Variants with an Approximate Bayesian Method Using Marginal Test Statistics." Genetics (2015): genetics-115.
 
 
