@@ -2,7 +2,16 @@
 
 
 Prepares summary statistics Z Score Files from IMPG and runs a finemapping analysis
-using Paintor, Caviar, and BIMBAM (Caviarbf) 
+using Paintor and Caviarbf.
+
+
+Paintor. 
+[https://github.com/gkichaev/PAINTOR_FineMapping/] 
+Kichaev, Gleb, et al. "Integrating functional data to prioritize causal variants in statistical fine-mapping studies." (2014): e1004722.
+
+Caviarbf.
+[https://bitbucket.org/Wenan/caviarbf]
+Chen, Wenan, et al. "Fine Mapping Causal Variants with an Approximate Bayesian Method Using Marginal Test Statistics." Genetics (2015): genetics-115.
 
 
 ## Installation and Setup.
@@ -13,7 +22,11 @@ Run the following commands to generate the files
 
     - numpy
     - scipy
-    - GEMINI framework - to install follow the instructions on the following github page https://github.com/arq5x/gemini
+    - GEMINI framework [https://github.com/arq5x/gemini/]
+    - PAINTOR
+    - caviarbf
+    - tabix [http://www.htslib.org/doc/tabix.html]
+    - 
     
 ```
 
