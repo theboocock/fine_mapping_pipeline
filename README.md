@@ -8,13 +8,13 @@ using Paintor and Caviarbf.
 
 If you use this tool please ensure you cite the primary papers for the methods, these are listed below. 
 
-Paintor. 
+###Paintor
 
 https://github.com/gkichaev/PAINTOR_FineMapping/
  
 Kichaev, Gleb, et al. "Integrating functional data to prioritize causal variants in statistical fine-mapping studies." (2014): e1004722.
 
-Caviarbf.
+###Caviarbf
 
 https://bitbucket.org/Wenan/caviarbf
 
