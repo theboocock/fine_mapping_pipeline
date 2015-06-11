@@ -101,11 +101,11 @@ def run_paintor(input_directory, annotation_header, output_directory,
     """
         Function runs PAINTOR and selections the annotations for using Downstream.
     """
+    header = open(annotation_header)
+    header_line = header.readline().strip().split()
     if auto_select_annotations:
-        best_annotations = _select_annotations(input_directory,  annotation_header, causal_snp_number)
+        best_annotations = _select_annotations(input_directory, annotation_header, causal_snp_number)
     else:
-        header = open(annotation_header)
-        header_line = header.readline().strip().split()
         best_annotations = range(len(header_line))
     command = __PAINTOR_TEMPLATE__.format(input_directory, output_directory,
                                           os.path.join(input_directory, 'input.files'),
