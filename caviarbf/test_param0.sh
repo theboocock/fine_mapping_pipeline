@@ -1,4 +1,4 @@
-./model_search -i ./example/pref4.multi.txt -o ./example/pref4.multi.txt.prior0 -m 50 -p 0 -sex > temp.console &&
+model_search -i ./example/pref4.multi.txt -o ./example/pref4.multi.txt.prior0 -m 50 -p 0 -sex > temp.console &&
 diff ./example/pref4.multi.txt.prior0.exhaustive ./example/pref4.multi.txt.prior0.exhaustive.gold &&
 diff ./example/pref4.multi.txt.prior0.exhaustivestepwise ./example/pref4.multi.txt.prior0.exhaustivestepwise.gold &&
 diff ./example/pref4.multi.txt.prior0.statistics ./example/pref4.multi.txt.prior0.statistics.gold &&
