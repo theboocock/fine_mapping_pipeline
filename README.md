@@ -33,7 +33,14 @@ Run the following commands to generate the files
     - PAINTOR https://github.com/gkichaev/PAINTOR_FineMapping/
     - caviarbf https://bitbucket.org/Wenan/caviarbf
     - tabix http://www.htslib.org/doc/tabix.html
-    
+
+#### IMPORTANT
+
+Before installation it is important you change the file fine_mapping_pipeline/config/__init__.py to either a local installation
+or the 1000 genomes FTP server. The {0} is replaced internall for each chromosome. The following string is an example for the EBI 1000 genomes FTP.
+
+"ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{0}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
+
 ```
 
 python setup.py install
@@ -44,7 +51,9 @@ bash install_paintor.sh
 ## Running the pipeline. 
 
 Basically the pipeline takes a list of either rsids, or chromosome"\t"position, and a folder containing 
-ZScores statistics that have been output using the Impg program. 
+ZScores statistics that have been output using the ImpG program, or any program as long as it conforms to the output we expect. 
+
+https://github.com/huwenboshi/ImpG
 
 The pipeline looks at the 1st two columns for chromosome and position, and the 5th column for the ZScore. 
 
