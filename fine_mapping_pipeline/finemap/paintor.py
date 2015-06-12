@@ -108,6 +108,7 @@ def run_paintor(input_directory, annotation_header, output_directory,
     except OSError:
         logging.error('Could not create a temporary directory for testing for PAINTOR failure')
         sys.exit(OS_ERROR)
+    keep_these_regions = []
     with open(os.path.join(input_directory, 'input.files')) as f:
         for line in f:
             temp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -116,7 +117,9 @@ def run_paintor(input_directory, annotation_header, output_directory,
             logging.info("Testing to see if loci {0} runs without NLopt failure".format(line.strip())) 
             command =__PAINTOR_TEMPLATE__.format(input_directory, temp_output_directory,
                                                  temp_file.name, 1)
-            run_command(command, exit_on_failure=False)
+            ret_value = run_command(command, exit_on_failure=False)
+            if ret_value:
+                keep_these_regions.append(line.strip())
 
     header = open(annotation_header)
     header_line = header.readline().strip().split()

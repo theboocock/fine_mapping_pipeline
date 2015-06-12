@@ -56,8 +56,8 @@ def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE,exit_on_failu
         if exit_on_failure:
             sys.exit(error)
         logger.warning("Did not exit because of a user request")
-        return 1
-    return 0
+        return False
+    return True
 
 def run_commands(commands, tool_name="" ,cores=6, stdouts=None):
     """
