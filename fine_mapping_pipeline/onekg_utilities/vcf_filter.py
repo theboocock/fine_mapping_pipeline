@@ -20,8 +20,8 @@
 #
 
 
-#TODO Check the reliability of the superpop file.
-__ONE_THOUSAND_GENOMES_SAMPLE_MAP__="/Users/smilefreak/Programming/OpenSource/MyGitHub/fine_mapping_pypeline/file_index/1000genomes_super_pop.txt"
+import os
+__ONE_THOUSAND_GENOMES_SAMPLE_MAP__=os.path.join(os.path.dirname(__file__), "../../1000genomes_super_pop.txt")
 import logging
 
 

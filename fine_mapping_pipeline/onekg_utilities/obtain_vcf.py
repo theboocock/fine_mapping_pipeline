@@ -1,4 +1,3 @@
-__1000_genomes_template__="""/Volumes/scratch/merrimanlab/james/ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{0}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"""
 
 import subprocess
 import shlex
@@ -9,6 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 from fine_mapping_pipeline.expections import *
 from fine_mapping_pipeline.utils.shell import *
+from fine_mapping_pipeline.config import __1000_genomes_template__
 
 def remove_tbi_files():
     """ 
