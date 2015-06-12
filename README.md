@@ -29,11 +29,10 @@ Run the following commands to generate the files
 
     - numpy
     - scipy
-    - GEMINI framework [https://github.com/arq5x/gemini/]
-    - PAINTOR
-    - caviarbf
-    - tabix [http://www.htslib.org/doc/tabix.html]
-    - 
+    - GEMINI framework https://github.com/arq5x/gemini/
+    - PAINTOR https://github.com/gkichaev/PAINTOR_FineMapping/
+    - caviarbf https://bitbucket.org/Wenan/caviarbf
+    - tabix http://www.htslib.org/doc/tabix.html
     
 ```
 
