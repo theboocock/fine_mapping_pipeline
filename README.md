@@ -36,10 +36,10 @@ Run the following commands to generate the files
 
 #### IMPORTANT
 
-Before installation it is important you change the file fine_mapping_pipeline/config/__init__.py to either a local installation
+Before installation it is important you change the file fine_mapping_pipeline/config/\_\_init\_\_.py to either a local installation
 or the 1000 genomes FTP server. The {0} is replaced internall for each chromosome. The following string is an example for the EBI 1000 genomes FTP.
 
-"ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{0}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
+\_\_1000_genomes_template\_\_="""ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr{0}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"""
 
 ```
 
