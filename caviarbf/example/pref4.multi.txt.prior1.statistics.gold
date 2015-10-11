@@ -1,3 +1,0 @@
-3.143734305372827e+06 # p(Data) / p(Data|M0)
-9.999999801191850e-01 # Probability of at least 1 causal variant P(M_alternative)
-3.353316525731015e+06 # Bayes factor of the region (M_alternative vs M0)
