@@ -34,10 +34,12 @@ def main():
     logging.info('Starting the fine mapping pipeline')
     parser = argparse.ArgumentParser(description="Processes SNP based data and performs various fine mapping tasks")
     subparsers = parser.add_subparsers(help='Sub-command help')
+    # Impg parser
+
     # Prepare parser 
     prepare_parser = subparsers.add_parser('prepare',help='Prepare for paintor run')
     prepare_parser.add_argument('-s', '--snp-list', dest='snp_list', help='SNP List file rsids or bed formatted')
-    prepare_parser.add_argument('-z', '--z-score-dir', dest='z_score_dir', help='File containing Z-scores for an entire chromosome of SNPs')
+    prepare_parser.add_argument('-z', '--z-score-dir', dest='z_score_dir', help='File containing imputed Z-scores for an entire chromosome of SNPs')
     prepare_parser.add_argument('-f', '--flanking-region', dest='flanking_region', help='Flanking region')
     prepare_parser.add_argument('-n', '--number_of_snps', dest='flanking_units',action='store_true',help='Use a number of SNPs either side instead of a region', default=False)
     prepare_parser.add_argument('-b', '--build', dest='build', help='Genome build',default='hg19')

@@ -26,10 +26,10 @@ from fine_mapping_pipeline.expections.error_codes import *
 from fine_mapping_pipeline.utils.shell import *
 
 __VCF_TO_PLINK_TEMPLATE__ = """
-    plink --vcf {0} --recode --out {1} 
+    plink --vcf {0} --make-bed --out {1} 
 """
 __PLINK_TO_LD_MATRIX__ = """
-    plink --file {0} --matrix --out {1} --r --allow-no-sex
+    plink --bfile {0} --matrix --out {1} --r --allow-no-sex --a2-allele {2} 4 3 '#'
 """
 
 def _add_dimensions_to_file(locus_f):
@@ -57,8 +57,9 @@ def vcf_to_plink(locus, output_directory ,vcf):
     run_command(command)
     try:
         #Rename
-        os.rename(locus +'.map', os.path.join(output_directory, locus + '.map'))
-        os.rename(locus +'.ped', os.path.join(output_directory, locus + '.ped'))
+        os.rename(locus +'.bed', os.path.join(output_directory, locus + '.bed'))
+        os.rename(locus +'.bim', os.path.join(output_directory, locus + '.bim'))
+        os.rename(locus +'.fam', os.path.join(output_directory, locus + '.fam'))
         #Remove
         os.remove(locus + '.log')
         os.remove(locus + '.nosex')
@@ -70,21 +71,24 @@ def _remove_plink_files(output_directory, locus):
     """
         Remove the plinkfile after creating the basename file.
     """
-    ped = os.path.join(output_directory, locus + '.ped')
-    map_f = os.path.join(output_directory, locus  + '.map')
+    bim = os.path.join(output_directory, locus + '.bim')
+    bed = os.path.join(output_directory, locus  + '.bed')
+    fam = os.path.join(output_directory, locus  + '.fam')
     try:
-        os.remove(ped)
-        os.remove(map_f)
+        os.remove(bim)
+        os.remove(bed)
+        os.remove(fam)
     except OSError:
         logging.warning('Could not remove Plink INPUT files, have they already been removed')
         pass 
+
 
 def plink_to_ld_matrix(locus ,output_directory , remove_plink_files=False):
     """
         Converts the plink file to a LD matrix for use downstream in paintor.
     """
     output_file = locus + '.LD'
-    command = __PLINK_TO_LD_MATRIX__.format(locus,locus)
+    command = __PLINK_TO_LD_MATRIX__.format(locus,locus, locus +'.vcf')
     # TODO: Fix this workaround, which has to change directory because of a limitation in plink
     try:
         os.chdir(output_directory)

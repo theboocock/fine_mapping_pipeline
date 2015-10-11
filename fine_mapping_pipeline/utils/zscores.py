@@ -70,11 +70,12 @@ def generate_zscore_and_vcf_output(output_directory,
                     else:
                         pos = int(line.split('\t')[1])
                         if pos in zscore_hash.keys():
-                            out_vcf.write(line + '\n')
-                            out_zscore.write(zscore_hash[pos]+'\n')
-                            rsid = line.split('\t')[2]
-                            if rsid == '.':
-                                rsid = line.split('\t')[0] + ":" + line.split('\t')[1]
-                            out_caviar.write(rsid+  ' ' + zscore_hash[pos] +'\n')
-
+                            temp_z_score = zscore_hash[pos]
+                            if float(temp_z_score) != 0.0:
+                                out_vcf.write(line + '\n')
+                                out_zscore.write(zscore_hash[pos]+'\n')
+                                rsid = line.split('\t')[2]
+                                if rsid == '.':
+                                    rsid = line.split('\t')[0] + ":" + line.split('\t')[1]
+                                out_caviar.write(rsid+  ' ' + zscore_hash[pos] +'\n')
     return output_vcf

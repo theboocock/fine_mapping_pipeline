@@ -21,7 +21,7 @@
 
 
 import os
-__ONE_THOUSAND_GENOMES_SAMPLE_MAP__=os.path.join(os.path.dirname(__file__), "../../1000genomes_super_pop.txt")
+__ONE_THOUSAND_GENOMES_SAMPLE_MAP__='/Users/smilefreak/Programming/OpenSource/MyGitHub/fine_mapping_pypeline/file_index/1000genomes_super_pop.txt'
 import logging
 
 
@@ -64,7 +64,7 @@ def _get_samples_indices(samples, super_population):
     return indices
          
 
-def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_only=True, min_maf=0.02):
+def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_only=True, min_maf=0.05):
     """
         Extract a population from a VCF file.
 

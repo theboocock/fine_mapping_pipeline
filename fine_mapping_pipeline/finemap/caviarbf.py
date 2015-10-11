@@ -31,6 +31,12 @@ import logging
 from fine_mapping_pipeline.expections.error_codes import *
 from fine_mapping_pipeline.utils.shell import run_command
 
+def _annotate_results_files(inputs, output_directory):
+    """
+        Annotates the marginal statistics files with the RSIDs of the causal SNPS
+    """
+    marginal_file 
+
 def run_caviarbf(output_directory, input_directory, sample_size, causal_snp_number=3, prior=0.1281429):
     """
         Runs caviar bf on the command-line     
@@ -67,6 +73,7 @@ def run_caviarbf(output_directory, input_directory, sample_size, causal_snp_numb
         output_basename = os.path.join(output_directory, input_f + '_caviar_run')
         command = __MODEL_SEARCH_TEMPLATE__.format(no_snps, output_bf ,output_basename)
         run_command(command, error=FAILED_CAVIARBF_RUN)
+    _annotate_results_files(inputs, output_directory)
     logging.info("Caviar BF Run completed successfully")
 
 def run_caviarbf_wrap(args):

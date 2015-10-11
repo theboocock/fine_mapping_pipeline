@@ -79,7 +79,7 @@ def _select_annotations(input_directory, annotation_header,
                         causal_snp_number, p_value_threshold=0.05):
     header = open(annotation_header)
     header_line = header.readline().strip().split()
-    p_value_threshold = p_value_threshold/len(header_line)
+    p_value_threshold = p_value_threshold
     best_annotations = []
     logging.info("Selecting annotations to use with the LRT")
     null_likelihood = _get_likelihood(input_directory, -1, "", causal_snp_number,0)
