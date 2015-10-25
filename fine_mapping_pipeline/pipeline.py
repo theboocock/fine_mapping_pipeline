@@ -25,6 +25,7 @@ import argparse
 from fine_mapping_pipeline.prepare_input.prepare_runs import prepare_runs
 from fine_mapping_pipeline.finemap.caviarbf import run_caviarbf_wrap 
 from fine_mapping_pipeline.finemap.paintor import run_paintor_wrap
+from fine_mapping_pipeline.finemap.finemap import run_finemap_wrap
 
 def main():
     """
@@ -74,6 +75,17 @@ def main():
     caviarbf_parser.add_argument('-s', '--sample-size', dest='sample_size', 
                                  help='Sample size Zscores were calculated from', required=True)
     caviarbf_parser.set_defaults(func=run_caviarbf_wrap)
+
+    finemap_parser = subparsers.add_parser("finemap", help='Run and process finemap\
+                                            output following file preparation')
+    finemap_parser.add_argument('-i','--input_directory', dest='input_directory',
+                                help="Directory files were prepare in after running the\
+                                prepare command", required=True)
+    finemap_parser.add_argument("-o", "--output_directory", dest="output_directory", help="Results output dir")
+    finemap_parser.add_argument("-c", "--causal_snp_number", dest="causal_snp_number", help="Potential number of causal SNPs",
+                              default=3)
+    finemap_parser.add_argument("-n","--n-ind", dest="number_of_individuals", help="Number of individuals")
+    finemap_parser.set_defaults(func=run_finemap_wrap)
 
     args = parser.parse_args()
     args.func(args)

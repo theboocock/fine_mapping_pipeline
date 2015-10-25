@@ -11,4 +11,5 @@ rs17632159/*
 scripts/test_data/*
 tests/caviar_data/*
 tests/paintor_data/*
+tests/finemap_data/*
 caviarbf/*
