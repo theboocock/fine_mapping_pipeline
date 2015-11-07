@@ -57,6 +57,7 @@ def prepare_runs(args):
     """
     output_directory = _prepare_output_dir(args.output_directory)
     z_score_dir = args.z_score_dir
+    region_list = None
     try:
         flanking_region = int(args.flanking_region)
     except ValueError:
@@ -71,6 +72,11 @@ def prepare_runs(args):
         sys.exit(COMMAND_LINE_ERROR)
     snp_list = SnpList(args.snp_list, build)
     logging.info(snp_list)
+    if args.region_list is not None:
+        region_list = {}
+        with open(args.region_list) as input_file:
+            for snp, line in zip(snp_list, input_file):
+                region_list[snp.rsid] = line.strip()
     # Locus to process
     # population_to_extract_vcf
     no_flanking = args.flanking_units
@@ -84,7 +90,10 @@ def prepare_runs(args):
         locus = snp.rsid
         loci.append(locus)
         logging.info("Obtaining VCF file from the 1000 genomes project")
-        vcf = get_vcf_file(snp, flanking_region)
+        if region_list is not None:
+            vcf = get_vcf_file(snp, string_region=region_list[locus])
+        else:    
+            vcf = get_vcf_file(snp, flanking_region=flanking_region)
         vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
         z_score_file = get_relevant_zscore(snp.chrom, z_score_dir)
         pos_list_zscore = create_pos_hash_table(z_score_file)

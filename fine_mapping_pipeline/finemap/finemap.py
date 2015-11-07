@@ -62,18 +62,25 @@ def remove_surrogates(matrix_file, z_score_file, surrogates_file=None):
     (nrow, ncol) = matrix.shape
     remove_snps =[]
     logging.info(matrix.shape)
+    # Create a data structure that will store input and output 
+    with_surrogates = {}
     for i in range(nrow):
         for j in range(i, ncol):
             if i != j:
-                if matrix[i][j] == 1:
+                if matrix[i, j] == 1 or matrix[i, j] == -1:
+                    try:
+                        with_surrogates[str(i)].append(j)
+                    except KeyError:
+                        with_surrogates[str(i)] = [j]
                     remove_snps.append(j)
     matrix = numpy.delete(matrix, remove_snps, axis=1)
     matrix = numpy.delete(matrix, remove_snps, axis=0)
     z_scores = [] 
-    surrogates_output = surrogates_file
+    #surrogates_output = surrogates_file
+    #TODO Replace hardcoded hack
+    surrogates_output = surrogates_file 
     if surrogates_output is not None:
-        print surrogates_file
-        surrogates_output = open(surrogates_file,'w')
+        surrogates_output = open(surrogates_file, 'w')
     with open(z_score_file) as z:
         for i, line in enumerate(z):
             if i not in remove_snps:
@@ -90,11 +97,13 @@ def _write_k_file(output_k, causal_snp_number):
 
         0.6 0.3 0.1
     """
-
-    ## TODO Change this horrible default
+    # Write the number of K files. 
+    causal_snp_number = 10
+    threshold = 1.0/(causal_snp_number)
+    thresh_list = [threshold] * causal_snp_number
+    thresh_list = [str(o) for o in thresh_list]
     with open(output_k, 'w') as out:
-        out.write("0.6 0.3 0.1\n")
-
+        out.write(" ".join(thresh_list) + "\n") 
 
 
 def run_finemap(input_directory, causal_snp_number, output_directory, sample_size):
@@ -132,7 +141,13 @@ def run_finemap(input_directory, causal_snp_number, output_directory, sample_siz
             # Let's run the analysis
             finemap_cl = __FINEMAP_TEMPLATE__.format(os.path.join(tmp_directory,prefix), sample_size) 
             logging.info(finemap_cl)
-            run_command(finemap_cl, error=FAILED_FINEMAP_RUN) 
+            run_command(finemap_cl, error=FAILED_FINEMAP_RUN)
+            
+            # Move the final output files.
+            snp_file = os.path.join(tmp_directory, prefix + ".snp")
+            os.rename(snp_file, os.path.join(output_directory, prefix + '.snp'))
+            config_file = os.path.join(tmp_directory, prefix + ".config")
+            os.rename(config_file, os.path.join(output_directory, prefix + ".config"))
     # TODO extract the output from the analysis and interpret the results :O
 
 def run_finemap_wrap(args):
