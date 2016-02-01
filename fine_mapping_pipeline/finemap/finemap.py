@@ -98,7 +98,7 @@ def _write_k_file(output_k, causal_snp_number):
         0.6 0.3 0.1
     """
     # Write the number of K files. 
-    causal_snp_number = 10
+    causal_snp_number = 3
     threshold = 1.0/(causal_snp_number)
     thresh_list = [threshold] * causal_snp_number
     thresh_list = [str(o) for o in thresh_list]
