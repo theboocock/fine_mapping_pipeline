@@ -1,0 +1,7 @@
+{
+  "tests/test_filter_vcf.py": true, 
+  "tests/test_obtain_vcf.py": true, 
+  "tests/test_run_caviarbf.py": true, 
+  "tests/test_run_finemap.py": true, 
+  "tests/test_run_paintor.py": true
+}

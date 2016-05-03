@@ -1,0 +1,42 @@
+GCTA uses and links two external numerical libraries, i.e. EIGEN and Intel
+MKL. 
+
+######################################################
+EIGEN is freely available at
+http://eigen.tuxfamily.org/index.php?title=Main_Page
+You can simply download the package and uncompress it. 
+For example, if the downloaded package is called
+“eigen-eigen-36bf2ceaf8f5.tar.bz2”. You can move this file to the “gcta”
+directory (the working directory) and type the following command to uncompress
+the file
+
+tar xvjf eigen-eigen-36bf2ceaf8f5.tar.bz2
+
+This command will uncompress all the library files to a directory called
+“eigen-eigen-36bf2ceaf8f5”.
+
+######################################################
+Intel MKL is a commercial library
+http://software.intel.com/en-us/intel-mkl
+However, there is an opportunity to obtain the Intel MKL library (for Linux)
+free of charge for non-commercial use
+http://software.intel.com/en-us/non-commercial-software-development
+I can simply follow the installation instruction to install the library. One
+example of the installation instruction can be found at
+http://software.intel.com/en-us/articles/intel-mkl-103-install-guide
+
+######################################################
+Once both EIGEN and Intel MKL libraries have been installed, you can simply
+type the following command to compile GCTA.
+make EIGEN_PATH="your EIGEN library path" MKL_PATH="your Intel MKL library
+path"
+
+For example, if EIGEN library files are in the “eigen-eigen-36bf2ceaf8f5”
+directory under “gcta” directory and Intel MKL library files are install in
+the “/opt/intel/mkl” directory, you can type the command
+make EIGEN_PATH="../eigen-eigen-36bf2ceaf8f5" MKL_PATH="/opt/intel/mkl"
+
+If you can successfully compile the program, you will be able to get an
+executable file called “gcta64” in your working directory (“gcta” directory).
+
+
