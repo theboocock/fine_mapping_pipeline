@@ -32,9 +32,12 @@ from fine_mapping_pipeline.onekg_utilities.obtain_vcf import get_vcf_file
 from fine_mapping_pipeline.onekg_utilities.vcf_filter import extract_population_from_1000_genomes
 from fine_mapping_pipeline.gemini.create import create_gemini_database
 from fine_mapping_pipeline.gemini.annotation import generate_and_write_encode_annotations
+from fine_mapping_pipeline.bed_annotations.annotation import generate_bed_file_annotations 
+
 from fine_mapping_pipeline.utils.zscores import get_relevant_zscore, create_pos_hash_table, generate_zscore_and_vcf_output
 from fine_mapping_pipeline.finemap.paintor import run_paintor
 from fine_mapping_pipeline.finemap.caviarbf import run_caviarbf
+
 
 def _prepare_output_dir(output_directory):
     if output_directory is None:
@@ -68,7 +71,7 @@ def prepare_runs(args):
     try:
         min_maf = float(args.maf)
     except:
-        logging.error("Min Maf -m or --min-maf needs to be an integer")
+        logging.error("Min Maf -m or --min-maf needs to be an floating point number")
         sys.exit(COMMAND_LINE_ERROR)
     snp_list = SnpList(args.snp_list, build)
     logging.info(snp_list)
@@ -98,8 +101,13 @@ def prepare_runs(args):
         z_score_file = get_relevant_zscore(snp.chrom, z_score_dir)
         pos_list_zscore = create_pos_hash_table(z_score_file)
         output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus)
-        logging.info("Creating gemini database")
-        gemini_databases.append(create_gemini_database(vcf=output_vcf))
+    
+        if args.bed_directory is not None:
+            logging.info("Ignoring gemini annotations, performing bed file annotation instead")
+            generate_bed_file_annotations(bed_directory=bed_directory, output_directory=output_directory, vcf=output_vcf)
+        else:
+            logging.info("Creating gemini database")
+            gemini_databases.append(create_gemini_database(vcf=output_vcf))
         logging.info("Creating LD matrix using plink")
         vcf_to_plink(locus, output_directory=output_directory,
                      vcf=output_vcf)
