@@ -112,9 +112,10 @@ def prepare_runs(args):
         vcf_to_plink(locus, output_directory=output_directory,
                      vcf=output_vcf)
         plink_to_ld_matrix(locus, output_directory=output_directory)
-    logging.info("Generating annotation matrices to be used with Paintor")
-    logging.info(gemini_databases)
-    generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
+    if args.bed_directory is not None:
+        logging.info("Generating annotation matrices to be used with Paintor")
+        logging.info(gemini_databases)
+        generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
     with open(os.path.join(output_directory, 'input.files'), 'w') as out_f:
         for snp in snp_list:
             out_f.write(snp.rsid +'\n')

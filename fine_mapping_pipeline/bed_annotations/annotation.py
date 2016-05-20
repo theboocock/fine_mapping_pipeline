@@ -20,7 +20,9 @@
 
 import logging
 import numpy as np
-from bedtools import IntervalFile
+import glob
+import os
+from pybedtools import BedTool 
  
 class AnnotateLociMatrix(object):
     """
@@ -29,16 +31,37 @@ class AnnotateLociMatrix(object):
         @date May 17 2016
     """
 
-    def __init__(self, no_annotiations, no_snps):
-        self._zeroes_=  np.zeroes([no_snps,no_annotiationsnnotations])
+    def __init__(self, no_annot , no_snps):
+        self._zeroes = np.zeros([no_snps, no_annot])
         self._header = []
-        
+        self._annot_idx = 0
+
+    def add_annotation(self, column, annot_name):
+        """
+            Add annotations to the final analysis file.
+        """
+        self._header.append(annot_name)
+        self._zeroes[:,self._annot_idx] = column
+        self._annot_idx += 1
 
 def _bed_from_vcf(vcf):
     """
         Bed file from intersection
     """
+    bed_lines = []
+    rsids = []
     with open(vcf) as vcf_input_file:
+        for line in vcf_input_file:
+            if "#" not in line:
+                l_s = line.split("\t")   
+                chrom = l_s[0] 
+                pos = l_s[1]
+                rsid = l_s[2]
+                rsids.append(rsid)
+                bed_line = "chr"+l_s[0] + "\t" + str(int(pos) -1 )+ "\t" + str(pos)+ "\t" + rsid +"\n"
+                bed_lines.append(bed_line)
+    return bed_lines, rsids
+
 
 def _get_line_number(vcf):
     """ 
@@ -47,7 +70,7 @@ def _get_line_number(vcf):
     with open(vcf) as vcf_input_file:
         i =  0 
         for line in vcf_input_file:
-            if "#" in line:
+            if "#" not in line:
                 i += 1
     return i
 
@@ -57,9 +80,19 @@ def generate_bed_file_annotations(bed_directory, output_directory, vcf):
     """
     
     # Loop over the bed files in the bed directory.
-    tmp_bed = _bed_from_vcf(vcf)
+    bed_lines, rsids = _bed_from_vcf(vcf)
+    tmp_bed = open("tmp.bed","w").writelines(bed_lines)
+    snps = BedTool("tmp.bed")
     no_snps = _get_line_number(vcf)
-    bed_file_list = glob.glob(os.path.join(args.bed_directory, "*.bed"))
-    a_matrix= AnnotateMatrix(no_snps)
-    for beds in bed_file_list: 
-
+    bed_file_list = glob.glob(os.path.join(bed_directory, "*.bed"))
+    a_matrix= AnnotateLociMatrix(len(bed_file_list), no_snps)
+    for beds in bed_file_list:
+        test_annotation = BedTool(beds)
+        inter = snps.intersect(test_annotation)
+        idxs = []
+        for inte in inter:
+            idxs.append(rsids.index(inte.name))
+        zeroes = np.zeros(len(rsids))
+        for idx in idxs:
+            zeroes[idx] = 1
+        a_matrix.add_annotation(zeroes, beds)

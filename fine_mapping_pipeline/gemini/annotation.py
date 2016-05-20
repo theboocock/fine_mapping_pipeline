@@ -22,7 +22,11 @@
 import argparse
 import logging
 import os
-from gemini import GeminiQuery
+import sys
+try: 
+    from gemini import GeminiQuery
+except ImportError:
+    print("Cannot use gemini annotation, not installed")
 
 class Annotation:
     """

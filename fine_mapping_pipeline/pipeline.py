@@ -47,6 +47,7 @@ def main():
     prepare_parser.add_argument('-o', '--output', dest='output_directory', help='output directory empty or non-existent directory for dumping files to be used in a paintor run')
     prepare_parser.add_argument('-p', '--population', dest='population', help='1kg population to calculate LD from', default='EUR')
     prepare_parser.add_argument('-m', '--min-maf', dest='maf', help='Min MAF filtering for 1000 genomes VCF file', default=0.02)
+    prepare_parser.add_argument("-b", "--bed-directory", dest="bed_directory", help="Bed file directory (does not utilise gemini)")
     prepare_parser.add_argument('-r', '--region_list', dest='region_list', help='Region list file', required=False) 
     prepare_parser.set_defaults(func=prepare_runs)
     
