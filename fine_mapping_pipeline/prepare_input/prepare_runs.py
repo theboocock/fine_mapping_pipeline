@@ -27,7 +27,7 @@ import time, datetime, os, sys
 from fine_mapping_pipeline.expections.error_codes import *
 
 from fine_mapping_pipeline.plink.ld import vcf_to_plink, plink_to_ld_matrix
-from fine_mapping_pipeline.snp_list import SnpList
+from fine_mapping_pipeline.snp_list import SnpList, Snp
 from fine_mapping_pipeline.onekg_utilities.obtain_vcf import get_vcf_file
 from fine_mapping_pipeline.onekg_utilities.vcf_filter import extract_population_from_1000_genomes
 from fine_mapping_pipeline.gemini.create import create_gemini_database
@@ -60,32 +60,42 @@ def prepare_runs(args):
     """
     output_directory = _prepare_output_dir(args.output_directory)
     z_score_dir = args.z_score_dir
-    region_list = None
-    try:
-        flanking_region = int(args.flanking_region)
-    except ValueError:
-        logging.error('Flanking region argument needs to be an integer')
-        sys.exit(COMMAND_LINE_ERROR)
+    region_list = args.region_list 
+    if args.region_list is None:
+        try:
+            flanking_region = int(args.flanking_region)
+        except ValueError:
+            logging.error('Flanking region argument needs to be an integer')
+            sys.exit(COMMAND_LINE_ERROR)
     build = args.build
+    bed_directory = args.bed_directory
     # Create the SNPList
     try:
         min_maf = float(args.maf)
     except:
         logging.error("Min Maf -m or --min-maf needs to be an floating point number")
         sys.exit(COMMAND_LINE_ERROR)
-    snp_list = SnpList(args.snp_list, build)
-    logging.info(snp_list)
     if args.region_list is not None:
         region_list = {}
+        snp_list = []
         with open(args.region_list) as input_file:
-            for snp, line in zip(snp_list, input_file):
+            # When using no flaking region SNP must be valid, but it doesn't actually matter what it is, need to ensure that is actually the case.
+            for i, line in enumerate(input_file):
+                rsid = str(i)+ "_"  + ''.join(line.strip().split("\t"))
+                chromosome = line.strip().split(":")[0] 
+                snp = Snp(chromosome,"1",rsid)
+                snp_list.append(snp)
                 region_list[snp.rsid] = line.strip()
+    else:
+        snp_list = SnpList(args.snp_list, build)
+        logging.info(snp_list)
     # Locus to process
     # population_to_extract_vcf
     no_flanking = args.flanking_units
     if no_flanking:
         raise NotImplementedError("Using a number of flanking SNPs instead of a region is not supported")
-    population = args.population
+    populations= args.populations.split(',')
+    logging.info("Populations to process: {0}".format(populations))
     loci = []
     gemini_databases = []
     for snp in snp_list:
@@ -97,24 +107,24 @@ def prepare_runs(args):
             vcf = get_vcf_file(snp, string_region=region_list[locus])
         else:    
             vcf = get_vcf_file(snp, flanking_region=flanking_region)
-        vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
-        z_score_file = get_relevant_zscore(snp.chrom, z_score_dir)
-        pos_list_zscore = create_pos_hash_table(z_score_file)
-        output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus)
-    
-        if args.bed_directory is not None:
-            logging.info("Ignoring gemini annotations, performing bed file annotation instead")
-            generate_bed_file_annotations(bed_directory=bed_directory, output_directory=output_directory, vcf=output_vcf)
-        else:
-            logging.info("Creating gemini database")
-            gemini_databases.append(create_gemini_database(vcf=output_vcf))
-        logging.info("Creating LD matrix using plink")
-        vcf_to_plink(locus, output_directory=output_directory,
-                     vcf=output_vcf)
-        plink_to_ld_matrix(locus, output_directory=output_directory)
-    logging.info("Generating annotation matrices to be used with Paintor")
-    logging.info(gemini_databases)
-    generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
+        for population in populations:
+            vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
+            z_score_file = get_relevant_zscore(snp.chrom, z_score_dir)
+            pos_list_zscore = create_pos_hash_table(z_score_file)
+            output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus,population=population)
+            if bed_directory is None:
+                logging.info("Creating gemini database")
+                # TODO: Fix broxen gemini referenec
+                gemini_databases.append(create_gemini_database(vcf=output_vcf))
+            vcf_to_plink(locus, output_directory=output_directory, vcf=output_vcf, population=population)
+            plink_to_ld_matrix(locus, output_directory=output_directory, population=population)
+    if bed_directory is not None:
+        logging.info("Generating annotation matrices to be used with Paintor")
+        logging.info(gemini_databases)
+        generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
+    else:
+        logging.info("Ignoring gemini annotations, performing bed file annotation instead")
+        generate_bed_file_annotations(bed_directory=bed_directory, output_directory=output_directory, vcf=output_vcf, population=population)
     with open(os.path.join(output_directory, 'input.files'), 'w') as out_f:
         for snp in snp_list:
             out_f.write(snp.rsid +'\n')

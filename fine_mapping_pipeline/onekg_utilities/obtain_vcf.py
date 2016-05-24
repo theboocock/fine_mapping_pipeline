@@ -4,7 +4,10 @@ import shlex
 import os
 import sys
 
-import logging 
+import logging
+
+import tempfile
+
 logger = logging.getLogger(__name__)
 from fine_mapping_pipeline.expections import *
 from fine_mapping_pipeline.utils.shell import *
@@ -33,5 +36,7 @@ def get_vcf_file(snp, flanking_region=None, string_region=None):
         start = positions.split("-")[0]
         end = positions.split("-")[1]
         command = 'tabix -h ' + vcf + ' ' + chrom + ':' + str(start) + '-' + str(end)
-    vcf_file_in_memory = run_command_return_output(command)
-    return vcf_file_in_memory
+    tf = tempfile.NamedTemporaryFile(delete=False, mode="w")
+    run_command(command, stdout=tf)
+    logging.info(tf.name)
+    return tf.name 

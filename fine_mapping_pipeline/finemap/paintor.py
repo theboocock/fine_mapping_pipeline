@@ -146,6 +146,8 @@ def run_paintor_wrap(args):
     input_directory = args.input_directory
     output_directory = args.output_directory
     causal_snp_number = args.causal_snp_number
+    baseline_bed_header = args.baseline_bed_header 
+    cell_type_header = args.cell_type_header 
     try:
         os.mkdir(output_directory)
     except OSError:

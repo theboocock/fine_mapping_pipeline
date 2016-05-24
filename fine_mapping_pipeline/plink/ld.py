@@ -48,7 +48,7 @@ def _add_dimensions_to_file(locus_f):
         for line in ld_lines:
             paintor_ld.write(line)
 
-def vcf_to_plink(locus, output_directory ,vcf):
+def vcf_to_plink(locus, output_directory ,vcf, population):
     """
         Uses PLINK to convert a 1000 genomes VCF file to plink format 
     """
@@ -57,23 +57,23 @@ def vcf_to_plink(locus, output_directory ,vcf):
     run_command(command)
     try:
         #Rename
-        os.rename(locus +'.bed', os.path.join(output_directory, locus + '.bed'))
-        os.rename(locus +'.bim', os.path.join(output_directory, locus + '.bim'))
-        os.rename(locus +'.fam', os.path.join(output_directory, locus + '.fam'))
+        os.rename(locus +'.bed', os.path.join(output_directory, locus + '.' + population + '.bed'))
+        os.rename(locus +'.bim', os.path.join(output_directory, locus + '.' + population + '.bim'))
+        os.rename(locus +'.fam', os.path.join(output_directory, locus + '.' + population + '.fam'))
         #Remove
         os.remove(locus + '.log')
         os.remove(locus + '.nosex')
     except OSError as e:
-        logging.error("Could not move PLINK files {0}".format(e))
+        logging.error("Could not move or remove PLINK files {0}".format(e))
         sys.exit(OS_ERROR)
 
-def _remove_plink_files(output_directory, locus):
+def _remove_plink_files(output_directory, locus, population):
     """
         Remove the plinkfile after creating the basename file.
     """
-    bim = os.path.join(output_directory, locus + '.bim')
-    bed = os.path.join(output_directory, locus  + '.bed')
-    fam = os.path.join(output_directory, locus  + '.fam')
+    bim = os.path.join(output_directory, locus + '.' + population + '.bim')
+    bed = os.path.join(output_directory, locus + '.' + population + '.bed')
+    fam = os.path.join(output_directory, locus + '.' + population+ '.fam')
     try:
         os.remove(bim)
         os.remove(bed)
@@ -83,12 +83,12 @@ def _remove_plink_files(output_directory, locus):
         pass 
 
 
-def plink_to_ld_matrix(locus ,output_directory , remove_plink_files=False):
+def plink_to_ld_matrix(locus ,output_directory, population, remove_plink_files=False):
     """
         Converts the plink file to a LD matrix for use downstream in paintor.
     """
-    output_file = locus + '.LD'
-    command = __PLINK_TO_LD_MATRIX__.format(locus,locus, locus +'.vcf')
+    output_file = locus+ '.' + population + '.LD'
+    command = __PLINK_TO_LD_MATRIX__.format(locus + '.'  + population,locus + '.' + population, locus + '.' + population + '.vcf')
     # TODO: Fix this workaround, which has to change directory because of a limitation in plink
     try:
         os.chdir(output_directory)
@@ -96,18 +96,19 @@ def plink_to_ld_matrix(locus ,output_directory , remove_plink_files=False):
         logging.error("Could not change directory")
         sys.exit(OS_ERROR)
     run_command(command)
-    os.rename(locus + '.ld', locus  + '.matrix')
-    _add_dimensions_to_file(locus + '.matrix')
+    os.rename(locus +'.' + population +'.ld', locus + '.' + population+ '.LD')
+    # Remove functionality as new PAINTOR does not require it. do not need to specify the number of lines.
+    #_add_dimensions_to_file(locus + '.matrix')
     if remove_plink_files:
-        _remove_plink_files(output_directory, locus)
+        _remove_plink_files(output_directory, locus, population)
     try:
         os.chdir('../')
     except OSError:
         logging.error("Could not change directory")
         sys.exit(OS_ERROR)
     try:
-        os.remove(os.path.join(output_directory,locus +'.log'))
-        os.remove(os.path.join(output_directory,locus + '.nosex'))
+        os.remove(os.path.join(output_directory,locus  + '.' + population+'.log'))
+        os.remove(os.path.join(output_directory,locus  + '.' + population + '.nosex'))
     except OSError:
         logging.warning('Could not remove Plink INPUT files, have they already been removed')
         pass 

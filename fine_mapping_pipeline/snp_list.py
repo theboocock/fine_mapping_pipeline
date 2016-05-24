@@ -8,19 +8,22 @@ class Snp:
     """
 
     def __init__(self, chrom, pos,rs_id):
-        self.chrom = chrom
-        self.pos = int(pos)
-        self.rsid = rs_id
+        self._chrom = chrom
+        self._pos = int(pos)
+        self._rsid = rs_id
 
     @property 
     def chrom(self):
-        return self.chrom
+        return self._chrom
     @property 
     def pos(self):
-        return self.pos
+        return self._pos
     @property
     def rsid(self):
-        return self.rsid
+        return self._rsid
+    
+    def set_chrom(self, chrom):
+        self.chrom = chrom
 
     def __str__(self):
         return self.chrom+":"+str(self.pos)

@@ -35,9 +35,11 @@ def get_relevant_zscore(chrom, directory):
 def create_pos_hash_table(zscore_file):
     """
         Create position hash table
+        
+        TODO: Fix indel and CNV being removed from the inital analysis.
 
         @param pos_file the Z scores file containing the positions from impg
-
+        
         @return pos_hash a hash table that contains the line from impG
 
     """
@@ -52,15 +54,16 @@ def create_pos_hash_table(zscore_file):
 def generate_zscore_and_vcf_output(output_directory, 
                              zscore_hash, 
                              vcf,
-                             locus):
+                             locus,
+                             population):
     """
         Extract vcf regions that have overlap with Impg data.
 
     """
     # output vcf is a temporary file that will be used downstream of this dataset.
-    output_vcf = os.path.join(output_directory, locus+'.vcf')
-    output_zscore = os.path.join(output_directory, locus)
-    caviar_zscore = os.path.join(output_directory, locus + '.Z')
+    output_vcf = os.path.join(output_directory, locus + '.' + population + '.vcf')
+    output_zscore = os.path.join(output_directory, locus + '.' + population)
+    caviar_zscore = os.path.join(output_directory, locus + '.' + population + '.Z')
     with open(output_vcf, 'w') as out_vcf:
         with open(output_zscore, 'w') as out_zscore:
             with open(caviar_zscore, 'w') as out_caviar:
@@ -72,10 +75,10 @@ def generate_zscore_and_vcf_output(output_directory,
                         if pos in zscore_hash.keys():
                             temp_z_score = zscore_hash[pos]
                             if float(temp_z_score) != 0.0:
-                                out_vcf.write(line + '\n')
-                                out_zscore.write(zscore_hash[pos]+'\n')
                                 rsid = line.split('\t')[2]
                                 if rsid == '.':
                                     rsid = line.split('\t')[0] + ":" + line.split('\t')[1]
+                                out_vcf.write(line + '\n')
+                                out_zscore.write(zscore_hash[pos]+'\n')
                                 out_caviar.write(rsid+  ' ' + zscore_hash[pos] +'\n')
     return output_vcf

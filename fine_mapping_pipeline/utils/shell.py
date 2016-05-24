@@ -27,30 +27,42 @@ from pyrallel import *
 from fine_mapping_pipeline.expections.error_codes import *
 logger = logging.getLogger(__name__)
 
-def run_command_return_output(command,cleanup=None ,error=GENERIC_PROCESS_FAILURE):
+def run_command_return_output(command,cleanup=None ,error=GENERIC_PROCESS_FAILURE, shell=False):
     """ 
         Runs one command and returns the stdout to the user.
     """
     devnull = open(os.devnull, 'w')
+    logging.info("Shell {0}".format(shell))
     try:
         logging.info('Running command: {}'.format(command))
-        command = shlex.split(command)
-        output = subprocess.check_output(command, stderr=devnull)
+        if not shell:
+            command = shlex.split(command)
+            output = subprocess.check_output(command, stderr=devnull, shell=shell)
+        else:
+            output = subprocess.check_output(command, stderr=devnull, shell=shell)
+
     except subprocess.CalledProcessError:
         logger.error("Command: {0} failed".format(' '.join(command)))
         sys.exit(error)
-    return output
+    return output.decode("utf8")
 
 
-def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE,exit_on_failure=True):
+def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE,exit_on_failure=True, stdout=None, shell=False):
     """
         Runs a command and returns the stderr to the user.
     """
     devnull = open(os.devnull, 'w')
+    if stdout is None:
+        stdout = devnull
     try:
         logging.info('Running command: {}'.format(command))
-        command = shlex.split(command)
-        subprocess.check_call(command,stderr=devnull, stdout=devnull)
+        if shell:
+        #    stdout = open("/Users/smilefreak/test.txt", "w")
+            subprocess.check_call(command,stderr=devnull, stdout=stdout, shell=True)
+        else:
+            command = shlex.split(command)
+        #    stdout = open("/Users/smilefreak/test.txt", "w")
+            subprocess.check_call(command,stderr=devnull, stdout=stdout)
     except subprocess.CalledProcessError:
         logger.error("Command: {0} failed".format(' '.join(command)))
         if exit_on_failure:
