@@ -33,7 +33,11 @@ class AnnotateLociMatrix(object):
     """
 
     def __init__(self, no_annot , no_snps):
+<<<<<<< HEAD
         self._zeroes = np.zeros([no_snps, no_annot],dtype=np.int32)
+=======
+        self._zeroes = np.zeros([no_snps, no_annot])
+>>>>>>> 04cc5b2e642ac3b934e64ee7c2b220b5478b4166
         self._header = []
         self._annot_idx = 0
 
@@ -41,6 +45,7 @@ class AnnotateLociMatrix(object):
         """
             Add annotations to the final analysis file.
         """
+<<<<<<< HEAD
         annot_name = os.path.basename(annot_name)
         self._header.append(annot_name)
         self._zeroes[:,self._annot_idx] = column
@@ -53,6 +58,11 @@ class AnnotateLociMatrix(object):
         logging.info(self._header)
         np.savetxt(output_file, self._zeroes, header=" ".join(self._header),fmt='%i',comments='')
     
+=======
+        self._header.append(annot_name)
+        self._zeroes[:,self._annot_idx] = column
+        self._annot_idx += 1
+>>>>>>> 04cc5b2e642ac3b934e64ee7c2b220b5478b4166
 
 def _bed_from_vcf(vcf):
     """
@@ -90,6 +100,7 @@ def generate_bed_file_annotations(bed_directory, output_directory, vcfs, loci, p
     """
     
     # Loop over the bed files in the bed directory.
+<<<<<<< HEAD
     bed_file_list = glob.glob(os.path.join(bed_directory, "*.bed"))
     logging.info("Start to generate BED file annotations")
     logging.info("Writing annotation to: {0}/".format(output_directory))
@@ -114,3 +125,21 @@ def generate_bed_file_annotations(bed_directory, output_directory, vcfs, loci, p
         annotations_file = os.path.join(output_directory, locus + "." + population + ".annotations")
         logging.info("Writing annotation matrix to: {0}".format(annotations_file))
         a_matrix.write_annotations(annotations_file)
+=======
+    bed_lines, rsids = _bed_from_vcf(vcf)
+    tmp_bed = open("tmp.bed","w").writelines(bed_lines)
+    snps = BedTool("tmp.bed")
+    no_snps = _get_line_number(vcf)
+    bed_file_list = glob.glob(os.path.join(bed_directory, "*.bed"))
+    a_matrix= AnnotateLociMatrix(len(bed_file_list), no_snps)
+    for beds in bed_file_list:
+        test_annotation = BedTool(beds)
+        inter = snps.intersect(test_annotation)
+        idxs = []
+        for inte in inter:
+            idxs.append(rsids.index(inte.name))
+        zeroes = np.zeros(len(rsids))
+        for idx in idxs:
+            zeroes[idx] = 1
+        a_matrix.add_annotation(zeroes, beds)
+>>>>>>> 04cc5b2e642ac3b934e64ee7c2b220b5478b4166

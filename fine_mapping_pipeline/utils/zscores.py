@@ -66,6 +66,7 @@ def generate_zscore_and_vcf_output(output_directory,
     caviar_zscore = os.path.join(output_directory, locus + '.' + population + '.Z')
     with open(output_vcf, 'w') as out_vcf:
         with open(output_zscore, 'w') as out_zscore:
+            out_zscore.write("rsid",
             with open(caviar_zscore, 'w') as out_caviar:
                 for line in vcf.splitlines():
                     if "#" in line:
