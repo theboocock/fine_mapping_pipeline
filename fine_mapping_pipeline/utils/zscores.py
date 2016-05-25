@@ -22,14 +22,14 @@ import os
 from os import listdir
 import logging
 
-def get_relevant_zscore(chrom, directory):
+def get_relevant_zscore(chrom, population, directory):
     """
         Scans the directory specified on the command-line by the user and checks for the specified chromosome.
 
     """
     zscore_files = [f for f in listdir(directory)]
     chrom = 'chr' + chrom
-    z_score_file = [f for f in zscore_files if chrom in f][0]
+    z_score_file = [f for f in zscore_files if chrom in f and population in f][0]
     return os.path.join(directory, z_score_file)
 
 def create_pos_hash_table(zscore_file):
@@ -66,20 +66,17 @@ def generate_zscore_and_vcf_output(output_directory,
     caviar_zscore = os.path.join(output_directory, locus + '.' + population + '.Z')
     with open(output_vcf, 'w') as out_vcf:
         with open(output_zscore, 'w') as out_zscore:
-            out_zscore.write("rsid",
             with open(caviar_zscore, 'w') as out_caviar:
                 for line in vcf.splitlines():
                     if "#" in line:
                         out_vcf.write(line + '\n')
                     else:
+                        chrom = line.split("\t")
                         pos = int(line.split('\t')[1])
                         if pos in zscore_hash.keys():
                             temp_z_score = zscore_hash[pos]
-                            if float(temp_z_score) != 0.0:
-                                rsid = line.split('\t')[2]
-                                if rsid == '.':
-                                    rsid = line.split('\t')[0] + ":" + line.split('\t')[1]
-                                out_vcf.write(line + '\n')
-                                out_zscore.write(zscore_hash[pos]+'\n')
-                                out_caviar.write(rsid+  ' ' + zscore_hash[pos] +'\n')
+                            rsid = line.split('\t')[2]
+                            out_vcf.write(line + '\n')
+                            out_zscore.write(rsid + " " + str(pos) + " "  + zscore_hash[pos] +'\n')
+                            out_caviar.write(rsid+ ' ' + zscore_hash[pos] +'\n')
     return output_vcf

@@ -58,7 +58,7 @@ def run_command(command,cleanup=None,error=GENERIC_PROCESS_FAILURE,exit_on_failu
         logging.info('Running command: {}'.format(command))
         if shell:
         #    stdout = open("/Users/smilefreak/test.txt", "w")
-            subprocess.check_call(command,stderr=devnull, stdout=stdout, shell=True)
+            subprocess.check_call(command,stderr=devnull, stdout=stdout)
         else:
             command = shlex.split(command)
         #    stdout = open("/Users/smilefreak/test.txt", "w")

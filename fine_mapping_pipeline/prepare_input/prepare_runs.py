@@ -24,6 +24,8 @@ import fine_mapping_pipeline.ucsc
 ## Import datetime to make dated directory
 import time, datetime, os, sys
 
+import pandas as pd 
+
 from fine_mapping_pipeline.expections.error_codes import *
 
 from fine_mapping_pipeline.plink.ld import vcf_to_plink, plink_to_ld_matrix
@@ -98,33 +100,43 @@ def prepare_runs(args):
     logging.info("Populations to process: {0}".format(populations))
     loci = []
     gemini_databases = []
+    #for snp in snp_list:
+    #    logging.info('Preparing output files for SNP {0}'.format(snp.rsid))
+    #    locus = snp.rsid
+    #    loci.append(locus)
+    #    logging.info("Obtaining VCF file from the 1000 genomes project")
+    #    if region_list is not None:
+    #        vcf = get_vcf_file(snp, string_region=region_list[locus])
+    #    else:    
+    #        vcf = get_vcf_file(snp, flanking_region=flanking_region)
+    #    for population in populations:
+    #        tmp_vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
+    #        z_score_file = get_relevant_zscore(snp.chrom, population, z_score_dir)
+    #        pos_list_zscore = create_pos_hash_table(z_score_file)
+    #        output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=tmp_vcf, locus=locus,population=population)
+    #        if bed_directory is None:
+    #            logging.info("Creating gemini database")
+    #            # TODO: Fix broxen gemini referenec
+    #            gemini_databases.append(create_gemini_database(vcf=output_vcf))
+    #        else:
+    #            generate_bed_file_annotations(locus=locus, bed_directory=bed_directory, output_directory=output_directory, vcf=output_vcf, population=population)
+    #        vcf_to_plink(locus, output_directory=output_directory, vcf=output_vcf, population=population)
+    #        plink_to_ld_matrix(locus, output_directory=output_directory, population=population)
+    #if bed_directory is None:
+    #    logging.info("Generating annotation matrices to be used with Paintor")
+    #    logging.info(gemini_databases)
+    #    generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
     for snp in snp_list:
-        logging.info('Preparing output files for SNP {0}'.format(snp.rsid))
-        locus = snp.rsid
-        loci.append(locus)
-        logging.info("Obtaining VCF file from the 1000 genomes project")
-        if region_list is not None:
-            vcf = get_vcf_file(snp, string_region=region_list[locus])
-        else:    
-            vcf = get_vcf_file(snp, flanking_region=flanking_region)
-        for population in populations:
-            vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
-            z_score_file = get_relevant_zscore(snp.chrom, z_score_dir)
-            pos_list_zscore = create_pos_hash_table(z_score_file)
-            output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=vcf, locus=locus,population=population)
-            if bed_directory is None:
-                logging.info("Creating gemini database")
-                # TODO: Fix broxen gemini referenec
-                gemini_databases.append(create_gemini_database(vcf=output_vcf))
-            vcf_to_plink(locus, output_directory=output_directory, vcf=output_vcf, population=population)
-            plink_to_ld_matrix(locus, output_directory=output_directory, population=population)
-    if bed_directory is not None:
-        logging.info("Generating annotation matrices to be used with Paintor")
-        logging.info(gemini_databases)
-        generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
-    else:
-        logging.info("Ignoring gemini annotations, performing bed file annotation instead")
-        generate_bed_file_annotations(bed_directory=bed_directory, output_directory=output_directory, vcf=output_vcf, population=population)
+        for i, population in enumerate(populations):
+            if i == 0:
+                tmp_pd = pd.read_csv(os.path.join(output_directory,snp.rsid +'.' + population), header=None, sep=" ")
+            else: 
+                p2 = pd.read_csv(os.path.join(output_directory, snp.rsid + '.' + population), header=None, sep=" ")
+                p2 = p2[[0,2]]
+                tmp_bp = pd.merge(tmp_pd, p2, how='outer', on=0)
+        tmp_bp.to_csv(os.path.join(output_directory, snp.rsid),sep=" ")
+    # So finally we need to fix the LD matrices for inputting into PAINTOR. 
+
     with open(os.path.join(output_directory, 'input.files'), 'w') as out_f:
         for snp in snp_list:
             out_f.write(snp.rsid +'\n')
