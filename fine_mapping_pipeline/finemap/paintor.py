@@ -30,7 +30,7 @@ from fine_mapping_pipeline.expections.error_codes import *
 from scipy.stats import chi2
 
 __PAINTOR_TEMPLATE__="""
-    PAINTOR -d {0} -o {1} -input {2} -c {3} 
+     /Users/smilefreak/PAINTOR_V3.0/PAINTOR -input {0}/input.files  -in {0}/ -out {1}/ -Zhead {2} -LDname {3} -c {4} -only-enrichment 
 """
 
 def _do_lrt(null_lrt, annot_lrt):
@@ -41,7 +41,7 @@ def _do_lrt(null_lrt, annot_lrt):
     test_result = 1 - chi2.cdf(test, 1)
     return test_result
 
-def _get_likelihood(input_directory, i, annotation, causal_snp_number, null_likelihood):
+def _get_likelihood(input_directory, i, annotation, causal_snp_number, null_likelihood, populations):
     """
         Use the likelhood ratio test to determine the sigfinance of an individual annotation for PAINTOR. 
     """
@@ -51,15 +51,18 @@ def _get_likelihood(input_directory, i, annotation, causal_snp_number, null_like
         logging.error('Could not create a temporary directory for likelihood testing')
         sys.exit(OS_ERROR)
     logging.info("Testing annotation {0} for significance using the LRT".format(annotation))
+    ld_name = populations.split(',')
+    ld_suffix = ['LD.'+o for o in ld_name]
+    ld_suffix = ",".join(ld_suffix)
     command = __PAINTOR_TEMPLATE__.format(input_directory, output_directory,
-                                          os.path.join(input_directory, 'input.files'),
-                                          causal_snp_number)
+                                         populations, ld_suffix, causal_snp_number) 
     if i != -1:
-        command += '-i ' + str(i)
+        command += '-annotations ' + i 
+    logging.info("Paintor command = {0}".format(command))
     run_command(command, error=FAILED_PAINTOR_RUN, exit_on_failure=False)
     likelihood = 0.0
     try:
-        with open(os.path.join(output_directory, 'Likelihood.txt')) as likeli_file:
+        with open(os.path.join(output_directory,"Log.Likelihood")) as likeli_file:
             try:
                 likelihood = float(likeli_file.readline())
             except ValueError:
@@ -76,27 +79,27 @@ def _get_likelihood(input_directory, i, annotation, causal_snp_number, null_like
     return likelihood
 
 def _select_annotations(input_directory, annotation_header, 
-                        causal_snp_number, p_value_threshold=0.05):
-    header = open(annotation_header)
-    header_line = header.readline().strip().split()
+                        causal_snp_number, populations, p_value_threshold=0.05):
     p_value_threshold = p_value_threshold
     best_annotations = []
     logging.info("Selecting annotations to use with the LRT")
-    null_likelihood = _get_likelihood(input_directory, -1, "", causal_snp_number,0)
+    null_likelihood = _get_likelihood(input_directory, -1, "", causal_snp_number,0, populations)
     logging.debug("Null model likelihood: {0}".format(null_likelihood))
-    for i in range(len(header_line)):
-        temp_likelhood = _get_likelihood(input_directory, i,
-                                       header_line[i], causal_snp_number, null_likelihood)
-        logging.debug(temp_likelhood)
-        lrt = _do_lrt(null_likelihood, temp_likelhood)
-        logging.debug(lrt)
-        if  lrt < p_value_threshold:
-            best_annotations.append(i)
-            logging.info("DETECTED: Significant annotation {0}: pvalue = {1}".format(header_line[i], lrt))
+    while annotation_header:
+        lrts = []
+        for i, annotation in enumerate(annotation_header):
+            logging.info("Testing annotation {0}".format(annotation))
+            temp_likelhood = _get_likelihood(input_directory, annotation,
+                                           annotation_header, causal_snp_number, null_likelihood, populations)
+            logging.debug(temp_likelhood)
+            lrt = _do_lrt(null_likelihood, temp_likelhood)
+            lrts.append((i, lrts))
+            logging.debug(lrt)
+            logging.info("DETECTED: annotation {0}: pvalue = {1}".format(annotation, lrt))
     return best_annotations
 
 
-def run_paintor(input_directory, annotation_header, output_directory,
+def run_paintor(input_directory, output_directory, populations,
                 auto_select_annotations=False, causal_snp_number=3):
     """
         Function runs PAINTOR and selections the annotations for using Downstream.
@@ -109,22 +112,16 @@ def run_paintor(input_directory, annotation_header, output_directory,
         logging.error('Could not create a temporary directory for testing for PAINTOR failure')
         sys.exit(OS_ERROR)
     keep_these_regions = []
+    loci = []
     with open(os.path.join(input_directory, 'input.files')) as f:
-        for line in f:
-            temp_file = tempfile.NamedTemporaryFile(delete=False)
-            temp_file.write(line.strip() + '\n')
-            temp_file.close()
-            logging.info("Testing to see if loci {0} runs without NLopt failure".format(line.strip())) 
-            command =__PAINTOR_TEMPLATE__.format(input_directory, temp_output_directory,
-                                                 temp_file.name, 1)
-            ret_value = run_command(command, exit_on_failure=False)
-            if ret_value:
-                keep_these_regions.append(line.strip())
-
-    header = open(annotation_header)
-    header_line = header.readline().strip().split()
+        for i, line in enumerate(f):
+            if i ==0:
+                with open(os.path.join(input_directory, line.strip() +".annotations")) as annotations_all:
+                    header = annotations_all.readline()
+                    annotation_header = header.strip().split()
+            loci.append(line.strip())
     if auto_select_annotations:
-        best_annotations = _select_annotations(input_directory, annotation_header, causal_snp_number)
+        best_annotations = _select_annotations(input_directory, annotation_header, causal_snp_number, populations)
     else:
         best_annotations = range(len(header_line))
     command = __PAINTOR_TEMPLATE__.format(input_directory, output_directory,
@@ -146,11 +143,9 @@ def run_paintor_wrap(args):
     input_directory = args.input_directory
     output_directory = args.output_directory
     causal_snp_number = args.causal_snp_number
-    baseline_bed_header = args.baseline_bed_header 
-    cell_type_header = args.cell_type_header 
+    populations = args.populations
     try:
         os.mkdir(output_directory)
     except OSError:
         pass
-    annotation_header = os.path.join(input_directory, 'annotation.header')
-    run_paintor(input_directory, annotation_header, output_directory, auto_select_annotations, causal_snp_number)
+    run_paintor(input_directory, output_directory, populations, auto_select_annotations, causal_snp_number)

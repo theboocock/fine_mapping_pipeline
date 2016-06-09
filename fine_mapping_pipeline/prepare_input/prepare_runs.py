@@ -39,6 +39,7 @@ from fine_mapping_pipeline.bed_annotations.annotation import generate_bed_file_a
 from fine_mapping_pipeline.utils.zscores import get_relevant_zscore, create_pos_hash_table, generate_zscore_and_vcf_output
 from fine_mapping_pipeline.finemap.paintor import run_paintor
 from fine_mapping_pipeline.finemap.caviarbf import run_caviarbf
+from fine_mapping_pipeline.utils.generate_transancestral_output import generate_transancestral_output 
 
 
 def _prepare_output_dir(output_directory):
@@ -93,59 +94,61 @@ def prepare_runs(args):
         logging.info(snp_list)
     # Locus to process
     # population_to_extract_vcf
-    no_flanking = args.flanking_units
-    if no_flanking:
-        raise NotImplementedError("Using a number of flanking SNPs instead of a region is not supported")
-    populations= args.populations.split(',')
-    logging.info("Populations to process: {0}".format(populations))
-    loci = []
-    gemini_databases = []
-    #for snp in snp_list:
-    #    logging.info('Preparing output files for SNP {0}'.format(snp.rsid))
-    #    locus = snp.rsid
-    #    loci.append(locus)
-    #    logging.info("Obtaining VCF file from the 1000 genomes project")
-    #    if region_list is not None:
-    #        vcf = get_vcf_file(snp, string_region=region_list[locus])
-    #    else:    
-    #        vcf = get_vcf_file(snp, flanking_region=flanking_region)
-    #    for population in populations:
-    #        tmp_vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
-    #        z_score_file = get_relevant_zscore(snp.chrom, population, z_score_dir)
-    #        pos_list_zscore = create_pos_hash_table(z_score_file)
-    #        output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=tmp_vcf, locus=locus,population=population)
-    #        if bed_directory is None:
-    #            logging.info("Creating gemini database")
-    #            # TODO: Fix broxen gemini referenec
-    #            gemini_databases.append(create_gemini_database(vcf=output_vcf))
-    #        else:
-    #            generate_bed_file_annotations(locus=locus, bed_directory=bed_directory, output_directory=output_directory, vcf=output_vcf, population=population)
-    #        vcf_to_plink(locus, output_directory=output_directory, vcf=output_vcf, population=population)
-    #        plink_to_ld_matrix(locus, output_directory=output_directory, population=population)
-    #if bed_directory is None:
-    #    logging.info("Generating annotation matrices to be used with Paintor")
-    #    logging.info(gemini_databases)
-    #    generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
-    for snp in snp_list:
-        for i, population in enumerate(populations):
-            if i == 0:
-                tmp_pd = pd.read_csv(os.path.join(output_directory,snp.rsid +'.' + population), header=None, sep=" ")
-            else: 
-                p2 = pd.read_csv(os.path.join(output_directory, snp.rsid + '.' + population), header=None, sep=" ")
-                p2 = p2[[0,2]]
-                tmp_bp = pd.merge(tmp_pd, p2, how='outer', on=0)
-        tmp_bp.to_csv(os.path.join(output_directory, snp.rsid),sep=" ")
-    # So finally we need to fix the LD matrices for inputting into PAINTOR. 
-
-    with open(os.path.join(output_directory, 'input.files'), 'w') as out_f:
+    if not args.annotation_only:
+        no_flanking = args.flanking_units
+        if no_flanking:
+            raise NotImplementedError("Using a number of flanking SNPs instead of a region is not supported")
+        populations= args.populations.split(',')
+        logging.info("Populations to process: {0}".format(populations))
+        loci = []
+        gemini_databases = []
+        output_vcfs = []
         for snp in snp_list:
-            out_f.write(snp.rsid +'\n')
-    # Remove .tbi files
+            logging.info('Preparing output files for SNP {0}'.format(snp.rsid))
+            locus = snp.rsid
+            loci.append(locus)
+            logging.info("Obtaining VCF file from the 1000 genomes project")
+            if region_list is not None:
+                vcf = get_vcf_file(snp, string_region=region_list[locus])
+            else:    
+                vcf = get_vcf_file(snp, flanking_region=flanking_region)
+            for population in populations:
+                tmp_vcf = extract_population_from_1000_genomes(vcf=vcf, super_population=population)
+                z_score_file = get_relevant_zscore(snp.chrom, population, z_score_dir)
+                pos_list_zscore = create_pos_hash_table(z_score_file)
+                output_vcf = generate_zscore_and_vcf_output(output_directory=output_directory, zscore_hash=pos_list_zscore, vcf=tmp_vcf, locus=locus,population=population, multiply_rsquare=args.multiply_rsquare)
+                if bed_directory is None:
+                    logging.info("Creating gemini database")
+                    # TODO: Fix broxen gemini referenec
+                    gemini_databases.append(create_gemini_database(vcf=output_vcf))
+                vcf_to_plink(locus, output_directory=output_directory, vcf=output_vcf, population=population)
+                plink_to_ld_matrix(locus, output_directory=output_directory, population=population)
+        generate_transancestral_output(loci, populations, output_directory)
+        if bed_directory is None:
+            logging.info("Generating annotation matrices to be used with Paintor")
+            logging.info(gemini_databases)
+            generate_and_write_encode_annotations(databases=gemini_databases, output_directory=output_directory, loci=snp_list)
+        else:
+            logging.info("Annotation using bed files")
+            generate_bed_file_annotations(loci=loci, bed_directory=bed_directory, output_directory=output_directory) 
+        # So finally we need to fix the LD matrices for inputting into PAINTOR. 
+
+        with open(os.path.join(output_directory, 'input.files'), 'w') as out_f:
+            for snp in snp_list:
+                out_f.write(snp.rsid +'\n')
+        # Remove .tbi files
     for file in os.listdir('.'):
         if fnmatch.fnmatch(file, '*.tbi'):
             try:
                 os.remove(file)
             except OSError:
                 logging.warning("Could not remove a .tbi file from the 1000 genomes tabix run")
+    else: 
+        loci = []
+        for snp in snp_list:
+            loci.append(snp.rsid)
+        if bed_directory is not None:
+            logging.info("Annotation using bed files")
+            generate_bed_file_annotations(loci=loci, bed_directory=bed_directory, output_directory=output_directory) 
     logging.info("Finemapping file preparation complete")
 

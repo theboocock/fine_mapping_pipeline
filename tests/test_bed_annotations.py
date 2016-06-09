@@ -27,9 +27,9 @@ def test_bed_annotiations(tmpdir):
         Tests bed annotation of the Zscore files from IMPG 
     """
     bed_directory= "tests/bed_files/"
-    vcf_input_files = ["tests/vcfs/small.vcf", "tests/vcfs/test.vcf"]
-    loci = ["small", "test"]
-    population = "EUR"
+    zscore_directory = "tests/zscores/"
+    loci = ["1_4:88800000-88900000"]
+    populations = ["EUR"]
     output_directory = str(tmpdir)
-    generate_bed_file_annotations(bed_directory=bed_directory, output_directory=output_directory, vcfs=vcf_input_files, loci=loci, population=population)
+    generate_bed_file_annotations(bed_directory=bed_directory, output_directory=zscore_directory,  loci=loci)
     assert 1== 2

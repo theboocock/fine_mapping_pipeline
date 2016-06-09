@@ -53,21 +53,40 @@ class AnnotateLociMatrix(object):
         logging.info(self._header)
         np.savetxt(output_file, self._zeroes, header=" ".join(self._header),fmt='%i',comments='')
 
-def _bed_from_vcf(vcf):
+#def _bed_from_vcf(vcf):
+#    """
+#        Bed file from intersection
+#    """
+#    bed_lines = []
+#    rsids = []
+#    with open(vcf) as vcf_input_file:
+#        for line in vcf_input_file:
+#            if "#" not in line:
+#                l_s = line.split("\t")   
+#                chrom = l_s[0] 
+#                pos = l_s[1]
+#                rsid = l_s[2]
+#                rsids.append(rsid)
+#                bed_line = "chr"+l_s[0] + "\t" + str(int(pos) -1 )+ "\t" + str(pos)+ "\t" + rsid +"\n"
+#                bed_lines.append(bed_line)
+#    return bed_lines, rsids
+
+
+def _bed_from_zscore(zscore):
     """
-        Bed file from intersection
+        Convert zscore file to bedfile for intersection processing. 
     """
-    bed_lines = []
-    rsids = []
-    with open(vcf) as vcf_input_file:
-        for line in vcf_input_file:
-            if "#" not in line:
-                l_s = line.split("\t")   
-                chrom = l_s[0] 
+    bed_lines = [] 
+    rsids = [] 
+    with open(zscore) as zscore_iter:
+        for i, line in enumerate(zscore_iter):
+            if i > 0:
+                l_s = line.split()
+                chrom = l_s[0]
                 pos = l_s[1]
                 rsid = l_s[2]
                 rsids.append(rsid)
-                bed_line = "chr"+l_s[0] + "\t" + str(int(pos) -1 )+ "\t" + str(pos)+ "\t" + rsid +"\n"
+                bed_line = "chr" + chrom + "\t" + str(int(pos) - 1) + "\t" + str(pos) + "\t" + rsid + "\n"
                 bed_lines.append(bed_line)
     return bed_lines, rsids
 
@@ -77,13 +96,12 @@ def _get_line_number(vcf):
         Get number of lines in vcf file 
     """
     with open(vcf) as vcf_input_file:
-        i =  0 
+        i =  -1
         for line in vcf_input_file:
-            if "#" not in line:
                 i += 1
     return i
 
-def generate_bed_file_annotations(bed_directory, output_directory, vcf, locus, population):
+def generate_bed_file_annotations(bed_directory, output_directory, loci):
     """
         Generates the annotation file for every bed file in the bed_directory folder
     """
@@ -92,23 +110,25 @@ def generate_bed_file_annotations(bed_directory, output_directory, vcf, locus, p
     bed_file_list = glob.glob(os.path.join(bed_directory, "*.bed"))
     logging.info("Start to generate BED file annotations")
     logging.info("Writing annotation to: {0}/".format(output_directory))
-    bed_lines, rsids = _bed_from_vcf(vcf)
-    tmp_bed = open("tmp.bed","w").writelines(bed_lines)
-    snps = BedTool("tmp.bed")
-    no_snps = _get_line_number(vcf)
-    a_matrix= AnnotateLociMatrix(len(bed_file_list), no_snps)
-    logging.info("Annotating locus: {0}, using VCF file {1}".format(locus, vcf))
-    for beds in bed_file_list:
-        test_annotation = BedTool(beds)
-        inter = snps.intersect(test_annotation)
-        idxs = []
-        for inte in inter:
-            idxs.append(rsids.index(inte.name))
-        zeroes = np.zeros(len(rsids))
-        for idx in idxs:
-            zeroes[idx] = 1
-        a_matrix.add_annotation(zeroes, beds)
-
-    annotations_file = os.path.join(output_directory, locus + "." + population + ".annotations")
-    logging.info("Writing annotation matrix to: {0}".format(annotations_file))
-    a_matrix.write_annotations(annotations_file)
+    for locus in loci:
+        zscore = os.path.join(output_directory, locus) 
+        bed_lines, rsids = _bed_from_zscore(zscore)
+        tmp_bed = open("tmp.bed","w").writelines(bed_lines)
+        snps = BedTool("tmp.bed")
+        no_snps = _get_line_number(zscore)
+        a_matrix= AnnotateLociMatrix(len(bed_file_list), no_snps)
+        logging.info("Annotating locus: {0}, using VCF file {1}".format(locus, zscore))
+        for beds in bed_file_list:
+            test_annotation = BedTool(beds)
+            inter = snps.intersect(test_annotation)
+            idxs = []
+            for inte in inter:
+                idxs.append(rsids.index(inte.name))
+            zeroes = np.zeros(len(rsids))
+            for idx in idxs:
+                zeroes[idx] = 1
+            a_matrix.add_annotation(zeroes, beds)
+        annotations_file = os.path.join(output_directory, locus + ".annotations")
+        logging.info("Writing annotation matrix to: {0}".format(annotations_file))
+        a_matrix.write_annotations(annotations_file)
+        os.remove("tmp.bed")

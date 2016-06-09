@@ -72,13 +72,13 @@ def _get_sample_list(super_population):
 
     onekg_dict = _load_one_thousand_genomes_sample_dict()
     super_pop_list = onekg_dict[super_population]
-    sup_pop_file = tempfile.NamedTemporaryFile(delete=False, mode="w")
+    sup_pop_file = open(super_population + ".tmp","w") 
     for sample in super_pop_list:
         sup_pop_file.write(sample + "\n")
     return sup_pop_file.name
 
 __BCFTOOLS__COMMAND__="""
-    bcftools view --force-samples -m2 -M2 -S {0} {1} | bcftools filter -i "MAF > 0.01" 
+    bcftools view --force-samples -m2 -M2 -S {0} {1} | bcftools filter -i "MAF > {2}" 
 """
 
 def _get_cnv_alternate():
@@ -88,7 +88,7 @@ def _get_cnv_alternate():
     return 'A', 'T'
 
 
-def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_only=True, min_maf=0.05):
+def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_only=True, min_maf="0.01"):
     """
         Extract a population from a VCF file.
 
@@ -96,7 +96,7 @@ def extract_population_from_1000_genomes(vcf, super_population="EUR", biallelic_
     """
     logging.info("Extracting {0} population from VCF".format(super_population))
     sample_list_file = _get_sample_list(super_population)
-    bcftools_command = __BCFTOOLS__COMMAND__.format(sample_list_file, vcf)
+    bcftools_command = __BCFTOOLS__COMMAND__.format(sample_list_file, vcf, min_maf)
     logging.info(bcftools_command)
     #sys.exit(1)
     output_vcf = run_command_return_output(bcftools_command, shell=True)

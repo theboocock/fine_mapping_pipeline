@@ -96,7 +96,7 @@ def plink_to_ld_matrix(locus ,output_directory, population, remove_plink_files=F
         logging.error("Could not change directory")
         sys.exit(OS_ERROR)
     run_command(command)
-    os.rename(locus +'.' + population +'.ld', locus + '.' + population+ '.LD')
+    os.rename(locus +'.' + population +'.ld', locus +'.LD' + '.' + population)
     # Remove functionality as new PAINTOR does not require it. do not need to specify the number of lines.
     #_add_dimensions_to_file(locus + '.matrix')
     if remove_plink_files:

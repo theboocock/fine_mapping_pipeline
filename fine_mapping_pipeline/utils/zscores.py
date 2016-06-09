@@ -48,14 +48,15 @@ def create_pos_hash_table(zscore_file):
         for i, line in enumerate(p):
             line = line.strip()
             if i != 0:
-                pos_hash[int(line.split()[1])] = line.split()[4]
+                pos_hash[int(line.split()[1])] = [line.split()[4],line.split()[5]]
     return (pos_hash)
 
 def generate_zscore_and_vcf_output(output_directory, 
                              zscore_hash, 
                              vcf,
                              locus,
-                             population):
+                             population,
+                             multiply_rsquare):
     """
         Extract vcf regions that have overlap with Impg data.
 
@@ -71,12 +72,15 @@ def generate_zscore_and_vcf_output(output_directory,
                     if "#" in line:
                         out_vcf.write(line + '\n')
                     else:
-                        chrom = line.split("\t")
+                        chrom = line.split("\t")[0]
                         pos = int(line.split('\t')[1])
                         if pos in zscore_hash.keys():
                             temp_z_score = zscore_hash[pos]
                             rsid = line.split('\t')[2]
                             out_vcf.write(line + '\n')
-                            out_zscore.write(rsid + " " + str(pos) + " "  + zscore_hash[pos] +'\n')
-                            out_caviar.write(rsid+ ' ' + zscore_hash[pos] +'\n')
+                            if multiply_rsquare: 
+                                out_zscore.write(chrom + " " + str(pos) + " " + rsid + " " + str(float(zscore_hash[pos][0]) * float(zscore_hash[pos][1])) +'\n')
+                            else:
+                                out_zscore.write(chrom + " " + str(pos) + " " + rsid + " " + zscore_hash[pos][0] +'\n')
+                            out_caviar.write(rsid+ ' ' + zscore_hash[pos][0] +'\n')
     return output_vcf

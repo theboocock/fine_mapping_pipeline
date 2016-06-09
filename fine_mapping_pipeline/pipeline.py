@@ -47,8 +47,11 @@ def main():
     prepare_parser.add_argument('-o', '--output', dest='output_directory', help='output directory empty or non-existent directory for dumping files to be used in a paintor run')
     prepare_parser.add_argument('-p', '--populations', dest='populations',help='1kg population to calculate LD from', default='EUR')
     prepare_parser.add_argument('-m', '--min-maf', dest='maf', help='Min MAF filtering for 1000 genomes VCF file', default=0.02)
-    prepare_parser.add_argument("-b", "--bed-directory", dest="bed_directory", help="Bed file directory (does not utilise gemini)")
+    prepare_parser.add_argument("-b", "--base-line-directory", dest="bed_directory", help="Bed file directory (does not utilise gemini)")
+    prepare_parser.add_argument("-e", "--extract-annotation-directory", dest="extra_annotation_dir", help="Extra annotation directory")
+    prepare_parser.add_argument("-a", "--annotation-only", dest="annotation_only", help="Only perform a bed annotation step", default=False, action="store_true") 
     prepare_parser.add_argument('-r', '--region_list', dest='region_list', help='Region list file', required=False) 
+    prepare_parser.add_argument("-u","--multiply-rsquare", dest="multiply_rsquare", help="Multiply RSquare to downweight imputted sites", default=False, action="store_true")
     prepare_parser.set_defaults(func=prepare_runs)
     
     #Finemap parser
@@ -61,7 +64,9 @@ def main():
                                 help='If using paintor select the annotations.', required=True)
     paintor_parser.add_argument('-o','--output_directory', dest='output_directory', help="Results output dir")
     paintor_parser.add_argument('-c','--causal_snp_number', dest='causal_snp_number', help="Potiential number of casual SNPs",
-                                default=3)
+                                default=1)
+    paintor_parser.add_argument("-p", "--populations", dest="populations", help="Populations used in prepare command (TODO: make autodiscover")
+    paintor_parser.add_argument("-b", "--base-line-bed", dest="bed_directory", help="Base line bed folder")
     paintor_parser.set_defaults(func=run_paintor_wrap)
     
     caviarbf_parser = subparsers.add_parser('caviarbf', help='Run and process caviarbf\
