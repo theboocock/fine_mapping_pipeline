@@ -23,10 +23,9 @@ import argparse
 import logging
 import os
 import sys
-try: 
-    from gemini import GeminiQuery
-except ImportError:
-    print("Cannot use gemini annotation, not installed")
+
+from fine_mapping_pipeline.utils.shell import run_command_return_output
+from fine_mapping_pipeline.expections.error_codes import *
 
 class Annotation:
     """
@@ -115,6 +114,8 @@ class AnnotationMatrix:
         for i in range(self.snp_number):
             annotation_row = []
             for val in self.annotation_dict.values():
+                print(i)
+                print(val)
                 annotation_row.extend(val.get_annotation_matrix(i))
             annotation_matrix.append(annotation_row)
         return annotation_matrix
@@ -136,13 +137,12 @@ class SNPAnnotations:
         self.annotation_list = AnnotationMatrix()
         self.snp_number = 0
 
-    def process_row(self, row):
+    def process_row(self, row, annotation_list):
         self.snp_number += 1
-        for item in row:
-            annotation_list = item
-            break
-        for annot in annotation_list:
-            self.annotation_list.add_annotation(annot, row[annot], self.snp_number)
+        annots = row.split("\t")
+        for annots, (annot, annotation_id) in enumerate(zip(annots, annotation_list)):
+            self.annotation_list.add_annotation(annotation_id, annot, self.snp_number)
+        print(self.snp_number)
 
     def get_snp_annotation_matrix(self):
         return self.annotation_list.get_annotation_matrix()
@@ -161,11 +161,14 @@ def generate_and_write_encode_annotations(loci, databases, output_directory):
     snp_annotations = SNPAnnotations()
     snp_cutoffs =  []
     i = 0
+    annotation_list = ["encode_consensus_gm12878", "encode_consensus_h1hesc", "bencode_consensus_helas3", "encode_consensus_hepg2", "encode_consensus_huvec", "encode_consensus_k562"]
     for database in databases:
-        gemi_query = GeminiQuery(database)
-        gemi_query.run('select encode_dnaseI_cell_list, encode_consensus_gm12878, encode_consensus_h1hesc, encode_consensus_helas3, encode_consensus_hepg2, encode_consensus_huvec, encode_consensus_k562 from variants')
-        for row in gemi_query:
-            snp_annotations.process_row(row)
+        gemi_query = """ gemini query -q  "select encode_consensus_gm12878, encode_consensus_h1hesc, encode_consensus_helas3, encode_consensus_hepg2, encode_consensus_huvec, encode_consensus_k562 from variants" {0} """.format(database) 
+        gemi_query_output = run_command_return_output(gemi_query, shell=True)
+        for row in gemi_query_output.split("\n"):
+            if (row == ""):
+                break
+            snp_annotations.process_row(row, annotation_list)
             i += 1
         snp_cutoffs.append(i)
     header = snp_annotations.get_snp_annotation_header()
@@ -174,15 +177,12 @@ def generate_and_write_encode_annotations(loci, databases, output_directory):
     j = 0
     for locus, snp_cutoff in zip(loci, snp_cutoffs):
         with open(os.path.join(output_directory, locus.rsid + '.annotations'), 'w') as out_annot:
-            out_annot.write(str(snp_cutoff-i)+ ' ' + str(len(header)) + '\n')
+            out_annot.write(' '.join(header) +"\n")
             #out_annot.write(str(snp_cutoff-i)+ ' ' + "1" + '\n')
             for j in range(i, snp_cutoff):
                 tmp_row = matrix[j]
                 out_annot.write(' '.join([str(o) for o in  tmp_row]) + '\n')
-            #    out_annot.write(str(tmp_row) + '\n')
         i = j + 1
-    with open(os.path.join(output_directory, 'annotation.header'), 'w') as header_f:
-        header_f.write(' '.join(header) + '\n')
 
 
 

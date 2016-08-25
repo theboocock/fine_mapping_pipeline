@@ -123,6 +123,7 @@ def prepare_runs(args):
                     gemini_databases.append(create_gemini_database(vcf=output_vcf))
                 vcf_to_plink(locus, output_directory=output_directory, vcf=output_vcf, population=population)
                 plink_to_ld_matrix(locus, output_directory=output_directory, population=population)
+        logging.info("Generate transancestrals matrices")
         generate_transancestral_output(loci, populations, output_directory)
         if bed_directory is None:
             logging.info("Generating annotation matrices to be used with Paintor")

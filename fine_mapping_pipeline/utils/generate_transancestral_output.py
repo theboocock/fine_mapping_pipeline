@@ -97,24 +97,25 @@ def generate_transancestral_output(loci, populations, output_directory, test_suf
                 out_zscore.write(chrom + " " + pos + " " + rsid + " " + " ".join(zscores) + "\n")
         logging.info("Completed creation of Zscore output")
         logging.info("Started generation of new LD matrices")
-        for population in populations:
-            output_ld = os.path.join(output_directory, locus + '.LD.' + population)
-            plink_ld_matrix= np.loadtxt(output_ld)
-            ld_matrix = np.zeros([no_snps, no_snps])
-            final_rows = list(o_set)
-            rsids = population_lists[population]
-            numpy_index_one = 0
-            for i in range(no_snps):
-                numpy_index_two = 0
-                for j in range(no_snps):
-                    if o_set[j] in rsids and o_set[i] in rsids:
-                        ld_matrix[i,j] = plink_ld_matrix[numpy_index_one,numpy_index_two]
-                        numpy_index_two += 1
-                    elif i == j:
-                        ld_matrix[i, j] = 1 
-                if (o_set[i] in rsids):
-                    numpy_index_one += 1
-            os.rename(output_ld, output_ld + '.old')
-            np.savetxt(output_ld + test_suffix, ld_matrix)
+        if (len(populations) != 1):
+            for population in populations:
+                output_ld = os.path.join(output_directory, locus + '.LD.' + population)
+                plink_ld_matrix= np.loadtxt(output_ld)
+                ld_matrix = np.zeros([no_snps, no_snps])
+                final_rows = list(o_set)
+                rsids = population_lists[population]
+                numpy_index_one = 0
+                for i in range(no_snps):
+                    numpy_index_two = 0
+                    for j in range(no_snps):
+                        if o_set[j] in rsids and o_set[i] in rsids:
+                            ld_matrix[i,j] = plink_ld_matrix[numpy_index_one,numpy_index_two]
+                            numpy_index_two += 1
+                        elif i == j:
+                            ld_matrix[i, j] = 1 
+                    if (o_set[i] in rsids):
+                        numpy_index_one += 1
+                os.rename(output_ld, output_ld + '.old')
+                np.savetxt(output_ld + test_suffix, ld_matrix)
         logging.info("Successfully created LD score matrices")
 

@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/Users/smilefreak/anaconda/bin//fine_mapping_pipeline", line 9, in <module>
+    load_entry_point('fine-mapping-pipeline==1.0', 'console_scripts', 'fine_mapping_pipeline')()
+  File "/Users/smilefreak/anaconda/lib/python3.5/site-packages/setuptools-20.3-py3.5.egg/pkg_resources/__init__.py", line 549, in load_entry_point
+  File "/Users/smilefreak/anaconda/lib/python3.5/site-packages/setuptools-20.3-py3.5.egg/pkg_resources/__init__.py", line 2542, in load_entry_point
+  File "/Users/smilefreak/anaconda/lib/python3.5/site-packages/setuptools-20.3-py3.5.egg/pkg_resources/__init__.py", line 2202, in load
+  File "/Users/smilefreak/anaconda/lib/python3.5/site-packages/setuptools-20.3-py3.5.egg/pkg_resources/__init__.py", line 2208, in resolve
+  File "/Users/smilefreak/.local/lib/python3.5/site-packages/fine_mapping_pipeline-1.0-py3.5.egg/fine_mapping_pipeline/pipeline.py", line 25, in <module>
+    from fine_mapping_pipeline.prepare_input.prepare_runs import prepare_runs
+  File "/Users/smilefreak/.local/lib/python3.5/site-packages/fine_mapping_pipeline-1.0-py3.5.egg/fine_mapping_pipeline/prepare_input/prepare_runs.py", line 27, in <module>
+    import pandas as pd 
+  File "/Users/smilefreak/anaconda/lib/python3.5/site-packages/pandas/__init__.py", line 43, in <module>
+    from pandas.io.api import *
+  File "/Users/smilefreak/anaconda/lib/python3.5/site-packages/pandas/io/api.py", line 13, in <module>
+    from pandas.io.sql import read_sql, read_sql_table, read_sql_query
+  File "<frozen importlib._bootstrap>", line 969, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 958, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 658, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 747, in get_code
+  File "<frozen importlib._bootstrap_external>", line 815, in get_data
+KeyboardInterrupt
